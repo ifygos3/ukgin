@@ -1,0 +1,10 @@
+.nav-link{
+    
+}
+
+
+.active{
+text-decoration: underline;
+text-decoration-color: rgb(188, 142, 3);
+text-decoration-thickness: 2px;
+}
