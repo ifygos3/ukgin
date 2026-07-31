@@ -38,6 +38,8 @@ const AdminLayout = () => {
     { path: '/admin/donations', label: 'Donations', icon: '❤️' },
     { path: '/admin/kyc', label: 'KYC Verification', icon: '🪪' },
     { path: '/admin/wallets', label: 'Wallet Management', icon: '🧾' },
+    { path: '/admin/event-management', label: 'Event Management', icon: '📅' },
+    { path: '/admin/announcements', label: 'Announcements', icon: '📢' },
     { path: '/admin/notifications', label: 'Notifications', icon: '🔔' },
     { path: '/admin/support-tickets', label: 'Support Tickets', icon: '🎫' },
     { path: '/admin/referrals', label: 'Referrals', icon: '🔗' },

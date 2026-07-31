@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
@@ -9,11 +10,11 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   const [responses, setResponses] = useState({});
   const [loading, setLoading] = useState(true);
-  const [rsvpForm, setRsvpForm] = useState({ open: false, eventId: null, type: 'going', message: '' });
   const [responding, setResponding] = useState({});
-  const { user, isAuthenticated, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${API_BASE_URL}/users/public/events/`);
@@ -23,9 +24,9 @@ const Events = () => {
       for (const ev of data) {
         try {
           const rRes = await axios.get(`${API_BASE_URL}/users/public/event-responses/?event_id=${ev.id}`);
-          const responses = rRes.data.results || rRes.data;
-          const mine = responses.find(r => r.user?.id === user?.id);
-          resMap[ev.id] = { responses, mine };
+          const eventResponses = rRes.data.results || rRes.data;
+          const mine = eventResponses.find(r => r.user?.id === user?.id);
+          resMap[ev.id] = { responses: eventResponses, mine };
         } catch {
           resMap[ev.id] = { responses: [], mine: null };
         }
@@ -42,38 +43,21 @@ const Events = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  useEffect(() => { fetchEvents(); }, [filter]);
+  useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
   const filtered = filter === 'upcoming' ? events.filter(e => !e.is_past) : events.filter(e => e.is_past);
 
-  const openRsvp = (eventId) => setRsvpForm({ open: true, eventId, type: 'going', message: '' });
-  const closeRsvp = () => setRsvpForm({ open: false, eventId: null, type: 'going', message: '' });
-
-  const submitResponse = async (e) => {
-    e.preventDefault();
-    if (!isAuthenticated) return alert('Please login to respond.');
-    setResponding(prev => ({ ...prev, [rsvpForm.eventId]: rsvpForm.type }));
-    try {
-      await axios.post(`${API_BASE_URL}/users/event-responses/`, { event: rsvpForm.eventId, response_type: rsvpForm.type, message: rsvpForm.message }, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } });
-      alert('Response submitted successfully!');
-      closeRsvp();
-      await fetchEvents();
-    } catch {
-      alert('Failed to submit response. Please try again.');
-    } finally {
-      setResponding(prev => ({ ...prev, [rsvpForm.eventId]: null }));
-    }
-  };
-
   const quickRespond = async (eventId, responseType) => {
-    if (!isAuthenticated) return alert('Please login to respond.');
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     setResponding(prev => ({ ...prev, [eventId]: responseType }));
     try {
       await axios.post(`${API_BASE_URL}/users/event-responses/`, { event: eventId, response_type: responseType, message: '' }, { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } });
       await fetchEvents();
-      alert(`You responded: ${responseLabel(responseType)}`);
     } catch (err) {
       console.error(err);
       alert('Failed to respond. Please try again.');
@@ -100,9 +84,6 @@ const Events = () => {
       <div className='space-y-6'>
         {filtered.map((e) => {
           const resp = responses[e.id] || { responses: [], mine: null };
-          const goingCount = resp.responses.filter(r => r.response_type === 'going').length;
-          const interestedCount = resp.responses.filter(r => r.response_type === 'interested').length;
-          const notGoingCount = resp.responses.filter(r => r.response_type === 'not_going').length;
           return (
             <div key={e.id} className='bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-yellow-400/30 transition'>
               <div className='flex flex-wrap justify-between items-start gap-4 mb-3'>
@@ -114,62 +95,48 @@ const Events = () => {
               </div>
               <p className='text-gray-400 text-sm mb-2'>📍 {e.location}</p>
               <p className='text-gray-300 text-sm mb-4'>{e.description}</p>
-              <div className='flex flex-wrap gap-3 mb-4 text-sm text-gray-400'>
-                {isAdmin && (
-                  <>
-                    <span>👍 {goingCount} going</span>
-                    <span>⭐ {interestedCount} interested</span>
-                    <span>❌ {notGoingCount} can&#39;t go</span>
-                  </>
-                )}
-              </div>
               {!e.is_past && (
-                <div className='flex flex-wrap gap-3'>
-                  {resp.mine ? (
-                    <span className='text-green-400 text-sm font-bold'>You: {responseEmoji(resp.mine.response_type)} {responseLabel(resp.mine.response_type)}</span>
-                  ) : (
-                    <button onClick={() => openRsvp(e.id)} className='bg-yellow-500 text-black px-6 py-2 rounded-lg text-sm font-bold hover:bg-yellow-400 transition'>RSVP Now</button>
-                  )}
-                  <button 
-                    onClick={() => quickRespond(e.id, 'going')} 
-                    disabled={responding[e.id] === 'going'}
-                    className='bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-500 transition disabled:opacity-50 disabled:cursor-not-allowed'
-                  >
-                    {responding[e.id] === 'going' ? '...' : 'Going'}
-                  </button>
-                  <button 
-                    onClick={() => quickRespond(e.id, 'interested')} 
-                    disabled={responding[e.id] === 'interested'}
-                    className='bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed'
-                  >
-                    {responding[e.id] === 'interested' ? '...' : 'Interested'}
-                  </button>
-                  <button 
-                    onClick={() => quickRespond(e.id, 'not_going')} 
-                    disabled={responding[e.id] === 'not_going'}
-                    className='bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-500 transition disabled:opacity-50 disabled:cursor-not-allowed'
-                  >
-                    {responding[e.id] === 'not_going' ? '...' : "Can't Go"}
-                  </button>
+                <div className='flex flex-wrap gap-3 items-center'>
+                {resp.mine && (
+                    <span className='text-green-400 text-sm font-bold'>Your response: {responseEmoji(resp.mine.response_type)} {responseLabel(resp.mine.response_type)}</span>
+                )}
+                {!isAuthenticated && (
+                  <span className='text-gray-400 text-sm mr-2'>Login to RSVP</span>
+                )}
+                <button
+                  onClick={() => quickRespond(e.id, 'going')}
+                  disabled={responding[e.id] === 'going'}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+                    resp.mine?.response_type === 'going'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-green-600 text-white hover:bg-green-500 disabled:opacity-50'
+                  }`}
+                >
+                  {responding[e.id] === 'going' ? '...' : `👍 ${resp.mine?.response_type === 'going' ? 'Going ✓' : 'Going'}`}
+                </button>
+                <button
+                  onClick={() => quickRespond(e.id, 'interested')}
+                  disabled={responding[e.id] === 'interested'}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+                    resp.mine?.response_type === 'interested'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50'
+                  }`}
+                >
+                  {responding[e.id] === 'interested' ? '...' : `⭐ ${resp.mine?.response_type === 'interested' ? 'Interested ✓' : 'Interested'}`}
+                </button>
+                <button
+                  onClick={() => quickRespond(e.id, 'not_going')}
+                  disabled={responding[e.id] === 'not_going'}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+                    resp.mine?.response_type === 'not_going'
+                      ? 'bg-gray-500 text-white'
+                      : 'bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50'
+                  }`}
+                >
+                  {responding[e.id] === 'not_going' ? '...' : `❌ ${resp.mine?.response_type === 'not_going' ? "Can't Go ✓" : "Can't Go"}`}
+                </button>
                 </div>
-              )}
-
-              {rsvpForm.open && rsvpForm.eventId === e.id && (
-                <form onSubmit={submitResponse} className='mt-6 bg-gray-800 p-6 rounded-xl border border-gray-700'>
-                  <h4 className='text-white font-bold mb-4'>RSVP to {e.name}</h4>
-                  <div className='flex flex-wrap gap-3 mb-4'>
-                    <button type='button' onClick={() => setRsvpForm(prev => ({ ...prev, type: 'going' }))} className={`px-4 py-2 rounded-lg text-sm font-bold ${rsvpForm.type === 'going' ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-300'}`}>👍 Going</button>
-                    <button type='button' onClick={() => setRsvpForm(prev => ({ ...prev, type: 'interested' }))} className={`px-4 py-2 rounded-lg text-sm font-bold ${rsvpForm.type === 'interested' ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-300'}`}>⭐ Interested</button>
-                    <button type='button' onClick={() => setRsvpForm(prev => ({ ...prev, type: 'not_going' }))} className={`px-4 py-2 rounded-lg text-sm font-bold ${rsvpForm.type === 'not_going' ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}>❌ Can&#39;t Go</button>
-                  </div>
-                  <textarea value={rsvpForm.message} onChange={(ev) => setRsvpForm(prev => ({ ...prev, message: ev.target.value }))} placeholder='Leave a message for the organizer (optional)' rows='3' className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white mb-4' />
-                  <div className='flex gap-3'>
-                    <button type='submit' disabled={responding[rsvpForm.eventId] === rsvpForm.type} className='bg-yellow-500 text-black px-6 py-2 rounded-lg text-sm font-bold hover:bg-yellow-400 transition disabled:opacity-50 disabled:cursor-not-allowed'>
-                      {responding[rsvpForm.eventId] === rsvpForm.type ? 'Submitting...' : 'Submit RSVP'}
-                    </button>
-                    <button type='button' onClick={closeRsvp} className='bg-gray-700 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-gray-600 transition'>Cancel</button>
-                  </div>
-                </form>
               )}
             </div>
           );

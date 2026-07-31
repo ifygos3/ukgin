@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const WithdrawalManagement = () => {
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ const WithdrawalManagement = () => {
     try {
       const params = new URLSearchParams();
       if (filter !== 'all') params.set('status', filter);
-      const res = await axios.get(`http://127.0.0.1:8000/users/withdrawals/?${params.toString()}`, {
+      const res = await axios.get(`${API_BASE_URL}/users/withdrawals/?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setWithdrawals(res.data.results || res.data);
@@ -23,7 +25,7 @@ const WithdrawalManagement = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/withdrawals/${id}/approve/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/withdrawals/${id}/approve/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchWithdrawals();
@@ -32,7 +34,7 @@ const WithdrawalManagement = () => {
 
   const handleReject = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/withdrawals/${id}/reject/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/withdrawals/${id}/reject/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchWithdrawals();

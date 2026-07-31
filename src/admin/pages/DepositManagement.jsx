@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const DepositManagement = () => {
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ const DepositManagement = () => {
     try {
       const params = new URLSearchParams();
       if (filter !== 'all') params.set('status', filter);
-      const res = await axios.get(`http://127.0.0.1:8000/users/deposits/?${params.toString()}`, {
+      const res = await axios.get(`${API_BASE_URL}/users/deposits/?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setDeposits(res.data.results || res.data);
@@ -26,7 +28,7 @@ const DepositManagement = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/deposits/${id}/approve/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/deposits/${id}/approve/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchDeposits();
@@ -35,7 +37,7 @@ const DepositManagement = () => {
 
   const handleReject = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/deposits/${id}/reject/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/deposits/${id}/reject/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchDeposits();

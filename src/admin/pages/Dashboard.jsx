@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [dailyRegs, setDailyRegs] = useState([]);
@@ -12,18 +14,25 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const token = localStorage.getItem('access_token');
   const navigate = useNavigate();
 
   const fetchData = async () => {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      setError('Please log in again to view the dashboard.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const [statsRes, dailyRes, monthlyRes, donationRes, profitRes, activityRes] = await Promise.all([
-        axios.get('http://127.0.0.1:8000/users/dashboard/stats/', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://127.0.0.1:8000/users/dashboard/daily-registrations/', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://127.0.0.1:8000/users/dashboard/monthly-registrations/', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://127.0.0.1:8000/users/dashboard/donation-analytics/', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://127.0.0.1:8000/users/dashboard/profit-analytics/', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://127.0.0.1:8000/users/dashboard/user-activity/', { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/users/dashboard/stats/`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/users/dashboard/daily-registrations/`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/users/dashboard/monthly-registrations/`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/users/dashboard/donation-analytics/`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/users/dashboard/profit-analytics/`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/users/dashboard/user-activity/`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       setStats(statsRes.data);
       setDailyRegs(dailyRes.data);
@@ -32,7 +41,8 @@ const Dashboard = () => {
       setProfitData(profitRes.data);
       setUserActivity(activityRes.data);
     } catch (err) {
-      setError('Failed to load dashboard data');
+      const message = err?.response?.data?.detail || err?.message || 'Failed to load dashboard data';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -56,6 +66,16 @@ const Dashboard = () => {
     total_deposits: '/admin/deposits',
     pending_deposits: '/admin/deposits',
     approved_deposits: '/admin/deposits',
+    total_events: '/admin/events',
+    total_news: '/admin/documents',
+    total_projects: '/admin/documents',
+    total_gallery: '/admin/gallery',
+    total_downloads: '/admin/documents',
+    total_volunteers: '/admin/volunteers',
+    total_partners: '/admin/partners',
+    total_sponsors: '/admin/sponsors',
+    total_states: '/admin/state-chapters',
+    total_lgas: '/admin/state-chapters',
     total_notifications: '/admin/notifications',
     total_reports: '/admin/reports',
     recent_logins: '/admin/audit-logs',
@@ -86,16 +106,16 @@ const Dashboard = () => {
         <StatCard title="Total Deposits" value={`$${stats.total_deposits}`} color="blue" link={statLinks.total_deposits} />
         <StatCard title="Pending Deposits" value={`$${stats.pending_deposits}`} color="orange" link={statLinks.pending_deposits} />
         <StatCard title="Approved Deposits" value={`$${stats.approved_deposits}`} color="green" link={statLinks.approved_deposits} />
-        <StatCard title="Events" value={stats.total_events || 0} color="blue" />
-        <StatCard title="News Posts" value={stats.total_news || 0} color="purple" />
-        <StatCard title="Projects" value={stats.total_projects || 0} color="green" />
-        <StatCard title="Gallery Items" value={stats.total_gallery || 0} color="blue" />
-        <StatCard title="Downloads" value={stats.total_downloads || 0} color="green" />
-        <StatCard title="Volunteers" value={stats.total_volunteers || 0} color="yellow" />
-        <StatCard title="Partners" value={stats.total_partners || 0} color="blue" />
-        <StatCard title="Sponsors" value={stats.total_sponsors || 0} color="yellow" />
-        <StatCard title="State Chapters" value={stats.total_states || 0} color="purple" />
-        <StatCard title="LGA Chapters" value={stats.total_lgas || 0} color="blue" />
+        <StatCard title="Events" value={stats.total_events || 0} color="blue" link={statLinks.total_events} />
+        <StatCard title="News Posts" value={stats.total_news || 0} color="purple" link={statLinks.total_news} />
+        <StatCard title="Projects" value={stats.total_projects || 0} color="green" link={statLinks.total_projects} />
+        <StatCard title="Gallery Items" value={stats.total_gallery || 0} color="blue" link={statLinks.total_gallery} />
+        <StatCard title="Downloads" value={stats.total_downloads || 0} color="green" link={statLinks.total_downloads} />
+        <StatCard title="Volunteers" value={stats.total_volunteers || 0} color="yellow" link={statLinks.total_volunteers} />
+        <StatCard title="Partners" value={stats.total_partners || 0} color="blue" link={statLinks.total_partners} />
+        <StatCard title="Sponsors" value={stats.total_sponsors || 0} color="yellow" link={statLinks.total_sponsors} />
+        <StatCard title="State Chapters" value={stats.total_states || 0} color="purple" link={statLinks.total_states} />
+        <StatCard title="LGA Chapters" value={stats.total_lgas || 0} color="blue" link={statLinks.total_lgas} />
         <StatCard title="Notifications" value={stats.total_notifications || 0} color="orange" link={statLinks.total_notifications} />
         <StatCard title="Reports" value={stats.total_reports || 0} color="green" link={statLinks.total_reports} />
         <StatCard title="Recent Logins" value={stats.recent_logins || 0} color="blue" link={statLinks.recent_logins} />

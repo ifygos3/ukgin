@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const KYCVerification = () => {
   const [kycDocs, setKycDocs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +15,7 @@ const KYCVerification = () => {
       if (filter === 'pending') params.set('status', 'pending');
       else if (filter === 'approved') params.set('status', 'approved');
       else if (filter === 'rejected') params.set('status', 'rejected');
-      const res = await axios.get(`http://127.0.0.1:8000/users/kyc/?${params.toString()}`, {
+      const res = await axios.get(`${API_BASE_URL}/users/kyc/?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setKycDocs(res.data.results || res.data);
@@ -25,7 +27,7 @@ const KYCVerification = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/kyc/${id}/approve/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/kyc/${id}/approve/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchKYC();
@@ -34,7 +36,7 @@ const KYCVerification = () => {
 
   const handleReject = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/kyc/${id}/reject/`, { reason: 'Document does not meet requirements' }, {
+      await axios.post(`${API_BASE_URL}/users/kyc/${id}/reject/`, { reason: 'Document does not meet requirements' }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchKYC();
@@ -43,7 +45,7 @@ const KYCVerification = () => {
 
   const handleResubmit = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/kyc/${id}/request-resubmission/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/kyc/${id}/request-resubmission/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchKYC();

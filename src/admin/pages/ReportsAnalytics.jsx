@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const ReportsAnalytics = () => {
   const [reportType, setReportType] = useState('daily');
   const [exportFormat, setExportFormat] = useState('json');
@@ -14,7 +16,7 @@ const ReportsAnalytics = () => {
       const params = new URLSearchParams();
       params.set('type', reportType);
       params.set('format', exportFormat);
-      const res = await axios.get(`http://127.0.0.1:8000/users/export/?${params.toString()}`, {
+      const res = await axios.get(`${API_BASE_URL}/users/export/?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReportData(res.data);

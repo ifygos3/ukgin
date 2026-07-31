@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
-const Login = () => {
+const Login = ({ showNotification }) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const { login } = useAuth();
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,27 +25,34 @@ const Login = () => {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/users/login/`,
-        { username: email, password },
+        { username: identifier, phone_number: identifier, password },
         { headers: { 'Content-Type': 'application/json' } }
       );
       const { access, refresh, user } = response.data;
-      localStorage.setItem('access_token', access);
-      localStorage.setItem('refresh_token', refresh);
-      localStorage.setItem('user', JSON.stringify(user));
+      const isAdminUser = user.role === 'admin' || user.role === 'super_admin' || user.is_staff;
+
+      if (loginType === 'admin' && !isAdminUser) {
+        setError('You do not have admin privileges. Please login as a user.');
+        showNotification?.('You do not have admin privileges. Please login as a user.', 'error');
+        return;
+      }
+
+      login(user, access, refresh);
+      showNotification?.(loginType === 'admin' ? 'Admin login successful.' : 'Login successful. Welcome back!', 'success');
+
       if (loginType === 'admin') {
-        if (user.role === 'admin' || user.role === 'super_admin' || user.is_staff) {
-          navigate('/admin');
-        } else {
-          setError('You do not have admin privileges. Please login as a user.');
-        }
+        navigate('/admin');
       } else {
         navigate('/');
       }
     } catch (err) {
       if (err.response) {
-        setError(err.response.data.detail || 'Login failed');
+        const message = err.response.data.detail || 'Login failed';
+        setError(message);
+        showNotification?.(message, 'error');
       } else {
         setError('Cannot connect to server');
+        showNotification?.('Cannot connect to server.', 'error');
       }
     } finally {
       setLoading(false);
@@ -130,11 +139,11 @@ const Login = () => {
             </div>
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Email or Username</label>
+                <label className="block text-sm text-gray-400 mb-1">Email, Username, or Phone Number</label>
                 <input
                   type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   className="w-full bg-black p-4 rounded-xl border border-gray-700 text-white focus:border-yellow-400 focus:outline-none"
                   required
                 />

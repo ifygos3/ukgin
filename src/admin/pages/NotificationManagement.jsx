@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const NotificationManagement = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +11,7 @@ const NotificationManagement = () => {
 
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/users/notifications/', {
+      const res = await axios.get(        `${API_BASE_URL}/users/notifications/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(res.data.results || res.data);
@@ -22,7 +24,7 @@ const NotificationManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:8000/users/notifications/', formData, {
+      await axios.post(        `${API_BASE_URL}/users/notifications/`, formData, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
       setFormData({ title: '', message: '', notification_type: 'announcement', sent_to_all: true });

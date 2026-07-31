@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const SupportTicketManagement = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,7 @@ const SupportTicketManagement = () => {
     try {
       const params = new URLSearchParams();
       if (filter !== 'all') params.set('status', filter);
-      const res = await axios.get(`http://127.0.0.1:8000/users/support-tickets/?${params.toString()}`, {
+      const res = await axios.get(`${API_BASE_URL}/users/support-tickets/?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTickets(res.data.results || res.data);
@@ -24,7 +26,7 @@ const SupportTicketManagement = () => {
 
   const handleReply = async (ticketId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/ticket-replies/`, { ticket: ticketId, message: replyText[ticketId] }, {
+      await axios.post(`${API_BASE_URL}/users/ticket-replies/`, { ticket: ticketId, message: replyText[ticketId] }, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
       setReplyText({ ...replyText, [ticketId]: '' });
@@ -34,7 +36,7 @@ const SupportTicketManagement = () => {
 
   const handleClose = async (ticketId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/support-tickets/${ticketId}/close/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/support-tickets/${ticketId}/close/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTickets();
@@ -43,7 +45,7 @@ const SupportTicketManagement = () => {
 
   const handleReopen = async (ticketId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/support-tickets/${ticketId}/reopen/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/support-tickets/${ticketId}/reopen/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTickets();

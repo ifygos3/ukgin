@@ -18,6 +18,9 @@ const UserManagement = () => {
   const [roleFilter, setRoleFilter] = useState('');
   const [total, setTotal] = useState(0);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [savingUser, setSavingUser] = useState(false);
   const [userResponses, setUserResponses] = useState([]);
   const [loadingResponses, setLoadingResponses] = useState(false);
   const token = localStorage.getItem('access_token');
@@ -55,7 +58,10 @@ const UserManagement = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchUsers();
+      alert(`Action ${action} completed successfully`);
     } catch (err) {
+      const msg = err?.response?.data?.detail || err?.message || 'Action failed';
+      alert(`Action failed: ${msg}`);
       console.error(err);
     }
   };
@@ -95,6 +101,48 @@ const UserManagement = () => {
   const closeUserResponses = () => {
     setSelectedUser(null);
     setUserResponses([]);
+  };
+
+  const openEditUser = (user) => {
+    setEditingUser(user);
+    setEditForm({
+      username: user.username || '',
+      full_name: user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+      email: user.email || '',
+      phone_number: user.phone_number || '',
+      address: user.address || '',
+      country: user.country || '',
+      state_of_origin: user.state_of_origin || '',
+      state_of_residence: user.state_of_residence || '',
+      lga: user.lga || '',
+      community: user.community || '',
+      role: user.role || 'member',
+      kyc_status: user.kyc_status || 'pending',
+    });
+  };
+
+  const closeEditUser = () => {
+    setEditingUser(null);
+    setEditForm({});
+  };
+
+  const handleEditUser = async (e) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setSavingUser(true);
+    try {
+      await axios.patch(
+        `${API_BASE_URL}/users/create_user/${editingUser.id}/`,
+        editForm,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await fetchUsers();
+      closeEditUser();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSavingUser(false);
+    }
   };
 
   const getStatusBadge = (user) => {
@@ -159,7 +207,7 @@ const UserManagement = () => {
             {users.map((user) => (
               <tr key={user.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
                 <td className="p-3 text-gray-400">{user.id}</td>
-                <td className="p-3">{user.first_name} {user.last_name}</td>
+                <td className="p-3">{user.full_name || `${user.first_name} ${user.last_name}`.trim() || user.username}</td>
                 <td className="p-3 text-gray-400">{user.email}</td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
@@ -204,12 +252,34 @@ const UserManagement = () => {
                         Ban
                       </button>
                     )}
+                    {user.is_banned && (
+                      <button 
+                        onClick={() => handleAction(user.id, 'unban')} 
+                        className="text-green-400 hover:text-green-300 text-xs"
+                      >
+                        Unban
+                      </button>
+                    )}
+                    {user.is_suspended && !user.is_banned && (
+                      <button 
+                        onClick={() => handleAction(user.id, 'unsuspend')} 
+                        className="text-yellow-400 hover:text-yellow-300 text-xs"
+                      >
+                        Unsuspend
+                      </button>
+                    )}
                     
                     <button 
                       onClick={() => handleAction(user.id, 'reset_password')} 
                       className="text-purple-400 hover:text-purple-300 text-xs"
                     >
                       Reset PW
+                    </button>
+                    <button 
+                      onClick={() => openEditUser(user)} 
+                      className="text-blue-400 hover:text-blue-300 text-xs"
+                    >
+                      Edit
                     </button>
                     <button 
                       onClick={() => openUserResponses(user)} 
@@ -224,6 +294,85 @@ const UserManagement = () => {
           </tbody>
         </table>
       </div>
+
+      {editingUser && (
+        <div className='fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-6' onClick={closeEditUser}>
+          <div className='bg-gray-900 p-8 rounded-2xl border border-gray-800 w-full max-w-2xl max-h-[90vh] overflow-y-auto' onClick={(e) => e.stopPropagation()}>
+            <div className='flex justify-between items-start mb-4'>
+              <div>
+                <h3 className='text-2xl font-bold text-yellow-400'>Edit Member Profile</h3>
+                <p className='text-gray-400 text-sm'>{editingUser.full_name || editingUser.email}</p>
+              </div>
+              <button onClick={closeEditUser} className='text-gray-400 hover:text-white text-xl'>✕</button>
+            </div>
+            <form onSubmit={handleEditUser} className='grid md:grid-cols-2 gap-4'>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Full Name</label>
+                <input value={editForm.full_name || ''} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Username</label>
+                <input value={editForm.username || ''} onChange={(e) => setEditForm({ ...editForm, username: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Email</label>
+                <input type='email' value={editForm.email || ''} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Phone</label>
+                <input value={editForm.phone_number || ''} onChange={(e) => setEditForm({ ...editForm, phone_number: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Country</label>
+                <input value={editForm.country || ''} onChange={(e) => setEditForm({ ...editForm, country: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>State Chapter</label>
+                <input value={editForm.state_of_origin || ''} onChange={(e) => setEditForm({ ...editForm, state_of_origin: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>State of Residence</label>
+                <input value={editForm.state_of_residence || ''} onChange={(e) => setEditForm({ ...editForm, state_of_residence: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>LGA</label>
+                <input value={editForm.lga || ''} onChange={(e) => setEditForm({ ...editForm, lga: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Community</label>
+                <input value={editForm.community || ''} onChange={(e) => setEditForm({ ...editForm, community: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Address</label>
+                <input value={editForm.address || ''} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Role</label>
+                <select value={editForm.role || 'member'} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white'>
+                  {ROLE_CHOICES.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>KYC Status</label>
+                <select value={editForm.kyc_status || 'pending'} onChange={(e) => setEditForm({ ...editForm, kyc_status: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white'>
+                  <option value='pending'>Pending</option>
+                  <option value='approved'>Approved</option>
+                  <option value='rejected'>Rejected</option>
+                  <option value='resubmission'>Resubmission Requested</option>
+                </select>
+              </div>
+              <div className='md:col-span-2 flex justify-end gap-3 mt-2'>
+                <button type='button' onClick={closeEditUser} className='px-4 py-2 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800'>Cancel</button>
+                <button type='submit' disabled={savingUser} className='px-4 py-2 rounded-xl bg-yellow-400 text-gray-900 font-bold hover:bg-yellow-500 disabled:opacity-50'>
+                  {savingUser ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {selectedUser && (
         <div className='fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-6' onClick={closeUserResponses}>

@@ -4,7 +4,7 @@ import GlobalSearch from './GlobalSearch';
 import { useAuth } from '../contexts/AuthContext';
 import "./Navbar.css"
 
-const Navbar = () => {
+const Navbar = ({ showNotification }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
@@ -52,7 +52,10 @@ const Navbar = () => {
           {isAuthenticated ? (
             <div className='flex items-center gap-4'>
               <span className='text-gray-300 text-sm'>{user?.first_name || 'User'}</span>
-              <button onClick={logout} className='hover:text-yellow-400 transition text-sm'>Logout</button>
+              <button onClick={() => {
+                logout();
+                showNotification?.('You have been logged out successfully.', 'success');
+              }} className='hover:text-yellow-400 transition text-sm'>Logout</button>
             </div>
           ) : (
             <>
@@ -83,7 +86,7 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <>
                   <span className='text-gray-300 text-sm'>{user?.first_name || 'User'}</span>
-                  <button onClick={() => { logout(); setMobileOpen(false); }} className='text-left text-red-400 hover:text-red-300'>Logout</button>
+                  <button onClick={() => { logout(); setMobileOpen(false); showNotification?.('You have been logged out successfully.', 'success'); }} className='text-left text-red-400 hover:text-red-300'>Logout</button>
                 </>
               ) : (
                 <>

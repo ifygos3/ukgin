@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
-const Signup = () => {
+const Signup = ({ showNotification }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     full_name: '',
@@ -13,6 +13,7 @@ const Signup = () => {
     phone_number: '',
     country: '',
     state_of_origin: '',
+    state_of_residence: '',
     lga: '',
     community: '',
     place_of_birth: '',
@@ -38,19 +39,26 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const NIGERIAN_STATES = [
+    'Abia', 'Abuja', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Benue',
+    'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu',
+    'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi',
+    'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ogun',
+    'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba',
+    'Yobe', 'Zamfara',
+  ];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleCountryChange = (e) => {
-    setCountryId(e.id);
-    setFormData(prev => ({ ...prev, country: e.name, state_of_origin: '', lga: '' }));
-  };
-
-  const handleStateChange = (e) => {
-    setFormData(prev => ({ ...prev, state_of_origin: e.name, lga: '' }));
+  const handleCountrySelect = (e) => {
+    const country = e.target.value;
+    const id = country === 'Nigeria' ? 1 : country === 'Ghana' ? 2 : 0;
+    setCountryId(id);
+    setFormData(prev => ({ ...prev, country, state_of_origin: '' }));
   };
 
   const handleSignature = (dataUrl) => {
@@ -75,17 +83,18 @@ const Signup = () => {
     };
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE_URL}/users/create_user/`,
         submitData,
         { headers: { 'Content-Type': 'application/json' } }
       );
 
       setMessage({ type: 'success', text: 'Registration successful! Welcome to the community.' });
+      showNotification?.('Signup successful. Please login to continue.', 'success');
 
       setFormData({
         full_name: '', email: '', address: '', phone_number: '',
-        country: '', state_of_origin: '', lga: '', community: '',
+        country: '', state_of_origin: '', state_of_residence: '', lga: '', community: '',
         place_of_birth: '', sex: '', highest_qualification: '',
         institution_attended: '', year_of_graduation: '', profession: '',
         current_job: '', job_title: '', job_experience: '',
@@ -104,8 +113,10 @@ const Signup = () => {
         else setMessage({ type: 'error', text: 'Registration failed. Please check your input.' });
       } else if (error.request) {
         setMessage({ type: 'error', text: 'Cannot connect to server. Please check your internet connection.' });
+        showNotification?.('Cannot connect to server. Please check your internet connection.', 'error');
       } else {
         setMessage({ type: 'error', text: 'An error occurred. Please try again.' });
+        showNotification?.('An error occurred. Please try again.', 'error');
       }
     } finally {
       setLoading(false);
@@ -127,27 +138,32 @@ const Signup = () => {
           <h2 className='md:col-span-2 text-xl font-bold text-yellow-400 mb-2'>SECTION 1: APPLICANT INFORMATION</h2>
 
           <div className="md:col-span-2">
-            <input type='text' name='full_name' value={formData.full_name} onChange={handleChange} placeholder='Full Name' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Full Name *</label>
+            <input type='text' name='full_name' value={formData.full_name} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.full_name && <span className="text-red-400 text-sm">{errors.full_name}</span>}
           </div>
 
           <div className="md:col-span-2">
-            <input type='text' name='address' value={formData.address} onChange={handleChange} placeholder='Address' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Address *</label>
+            <input type='text' name='address' value={formData.address} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.address && <span className="text-red-400 text-sm">{errors.address}</span>}
           </div>
 
           <div>
-            <input type='email' name='email' value={formData.email} onChange={handleChange} placeholder='Email Address' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Email Address *</label>
+            <input type='email' name='email' value={formData.email} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.email && <span className="text-red-400 text-sm">{errors.email}</span>}
           </div>
 
           <div>
-            <input type='text' name='phone_number' value={formData.phone_number} onChange={handleChange} placeholder='Phone Number' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Phone Number *</label>
+            <input type='text' name='phone_number' value={formData.phone_number} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.phone_number && <span className="text-red-400 text-sm">{errors.phone_number}</span>}
           </div>
 
           <div className="md:col-span-2">
-            <select name='country' value={formData.country} onChange={handleChange} className='bg-black p-4 rounded-xl w-full' required>
+            <label className="block text-sm text-gray-400 mb-1">Country *</label>
+            <select name='country' value={formData.country} onChange={handleCountrySelect} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required>
               <option value=''>Select Country</option>
               <option value='Nigeria'>Nigeria</option>
               <option value='Ghana'>Ghana</option>
@@ -162,29 +178,56 @@ const Signup = () => {
 
           {countryId > 0 && (
             <div className="md:col-span-2">
-              <select name='state_of_origin' value={formData.state_of_origin} onChange={handleChange} className='bg-black p-4 rounded-xl w-full' required>
-                <option value=''>Select State</option>
+              <label className="block text-sm text-gray-400 mb-1">State Chapter (State of Origin) *</label>
+              <select name='state_of_origin' value={formData.state_of_origin} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required>
+                <option value=''>Select State Chapter</option>
+                {NIGERIAN_STATES.map(state => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
               </select>
               {errors.state_of_origin && <span className="text-red-400 text-sm">{errors.state_of_origin}</span>}
             </div>
           )}
 
+          {countryId === 0 && formData.country && (
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-400 mb-1">State Chapter (State of Origin) *</label>
+              <input type='text' name='state_of_origin' value={formData.state_of_origin} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
+              {errors.state_of_origin && <span className="text-red-400 text-sm">{errors.state_of_origin}</span>}
+            </div>
+          )}
+
           <div>
-            <input type='text' name='lga' value={formData.lga} onChange={handleChange} placeholder='Local Government Area (LGA)' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">State of Residence *</label>
+            <select name='state_of_residence' value={formData.state_of_residence} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required>
+              <option value=''>Select State of Residence</option>
+              {countryId > 0 && NIGERIAN_STATES.map(state => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
+            {errors.state_of_residence && <span className="text-red-400 text-sm">{errors.state_of_residence}</span>}
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Local Government Area (LGA) *</label>
+            <input type='text' name='lga' value={formData.lga} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.lga && <span className="text-red-400 text-sm">{errors.lga}</span>}
           </div>
 
           <div>
-            <input type='text' name='community' value={formData.community} onChange={handleChange} placeholder='Community' className='bg-black p-4 rounded-xl w-full' />
+            <label className="block text-sm text-gray-400 mb-1">Community</label>
+            <input type='text' name='community' value={formData.community} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' />
           </div>
 
           <div>
-            <input type='text' name='place_of_birth' value={formData.place_of_birth} onChange={handleChange} placeholder='Place of Birth' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Place of Birth *</label>
+            <input type='text' name='place_of_birth' value={formData.place_of_birth} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.place_of_birth && <span className="text-red-400 text-sm">{errors.place_of_birth}</span>}
           </div>
 
           <div>
-            <select name='sex' value={formData.sex} onChange={handleChange} className='bg-black p-4 rounded-xl w-full' required>
+            <label className="block text-sm text-gray-400 mb-1">Sex *</label>
+            <select name='sex' value={formData.sex} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required>
               <option value=''>Select Sex</option>
               <option value='Male'>Male</option>
               <option value='Female'>Female</option>
@@ -196,75 +239,84 @@ const Signup = () => {
           <h2 className='md:col-span-2 text-xl font-bold text-yellow-400 mt-4 mb-2'>SECTION 2: EDUCATIONAL BACKGROUND</h2>
 
           <div>
-            <input type='text' name='highest_qualification' value={formData.highest_qualification} onChange={handleChange} placeholder='Highest Qualification' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Highest Qualification *</label>
+            <input type='text' name='highest_qualification' value={formData.highest_qualification} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.highest_qualification && <span className="text-red-400 text-sm">{errors.highest_qualification}</span>}
           </div>
 
           <div>
-            <input type='text' name='institution_attended' value={formData.institution_attended} onChange={handleChange} placeholder='Institution Attended' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Institution Attended *</label>
+            <input type='text' name='institution_attended' value={formData.institution_attended} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.institution_attended && <span className="text-red-400 text-sm">{errors.institution_attended}</span>}
           </div>
 
           <div>
-            <input type='text' name='year_of_graduation' value={formData.year_of_graduation} onChange={handleChange} placeholder='Year of Graduation' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Year of Graduation *</label>
+            <input type='text' name='year_of_graduation' value={formData.year_of_graduation} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.year_of_graduation && <span className="text-red-400 text-sm">{errors.year_of_graduation}</span>}
           </div>
 
           <h2 className='md:col-span-2 text-xl font-bold text-yellow-400 mt-4 mb-2'>SECTION 3: PROFESSION BACKGROUND</h2>
 
           <div>
-            <input type='text' name='profession' value={formData.profession} onChange={handleChange} placeholder='Profession' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Profession *</label>
+            <input type='text' name='profession' value={formData.profession} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.profession && <span className="text-red-400 text-sm">{errors.profession}</span>}
           </div>
 
           <div>
-            <input type='text' name='job_title' value={formData.job_title} onChange={handleChange} placeholder='Current Job Title' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Current Job Title *</label>
+            <input type='text' name='job_title' value={formData.job_title} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.job_title && <span className="text-red-400 text-sm">{errors.job_title}</span>}
           </div>
 
           <div>
-            <input type='text' name='current_job' value={formData.current_job} onChange={handleChange} placeholder='Current Job' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Current Job *</label>
+            <input type='text' name='current_job' value={formData.current_job} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.current_job && <span className="text-red-400 text-sm">{errors.current_job}</span>}
           </div>
 
           <div>
-            <input type='text' name='current_employee' value={formData.current_employee} onChange={handleChange} placeholder='Current Employee' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Current Employer *</label>
+            <input type='text' name='current_employee' value={formData.current_employee} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.current_employee && <span className="text-red-400 text-sm">{errors.current_employee}</span>}
           </div>
 
           <div className="md:col-span-2">
-            <textarea name='job_experience' value={formData.job_experience} onChange={handleChange} rows='4' placeholder='Job Experience (list previous work experience)' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Job Experience *</label>
+            <textarea name='job_experience' value={formData.job_experience} onChange={handleChange} rows='4' className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.job_experience && <span className="text-red-400 text-sm">{errors.job_experience}</span>}
           </div>
 
           <h2 className='md:col-span-2 text-xl font-bold text-yellow-400 mt-4 mb-2'>ACCOUNT SETUP</h2>
 
           <div>
-            <input type='text' name='username' value={formData.username} onChange={handleChange} placeholder='Username' className='bg-black p-4 rounded-xl w-full' required />
+            <label className="block text-sm text-gray-400 mb-1">Username *</label>
+            <input type='text' name='username' value={formData.username} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white' required />
             {errors.username && <span className="text-red-400 text-sm">{errors.username}</span>}
           </div>
 
-<div>
-             <label className="block text-sm text-gray-400 mb-1">Password</label>
-             <div className="relative">
-               <input type={showPassword ? 'text' : 'password'} name='password' value={formData.password} onChange={handleChange} placeholder='Password' className='bg-black p-4 rounded-xl w-full pr-10' required />
-               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-sm">
-                 {showPassword ? '🙈' : '👁'}
-               </button>
-             </div>
-             {errors.password && <span className="text-red-400 text-sm">{errors.password}</span>}
-           </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Password *</label>
+            <div className="relative">
+              <input type={showPassword ? 'text' : 'password'} name='password' value={formData.password} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white pr-10' required />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-sm">
+                {showPassword ? '🙈' : '👁'}
+              </button>
+            </div>
+            {errors.password && <span className="text-red-400 text-sm">{errors.password}</span>}
+          </div>
 
-           <div>
-             <label className="block text-sm text-gray-400 mb-1">Confirm Password</label>
-             <div className="relative">
-               <input type={showConfirmPassword ? 'text' : 'password'} name='confirmPassword' value={formData.confirmPassword} onChange={handleChange} placeholder='Confirm Password' className='bg-black p-4 rounded-xl w-full pr-10' required />
-               <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-sm">
-                 {showConfirmPassword ? '🙈' : '👁'}
-               </button>
-             </div>
-             {errors.confirmPassword && <span className="text-red-400 text-sm">{errors.confirmPassword}</span>}
-           </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Confirm Password *</label>
+            <div className="relative">
+              <input type={showConfirmPassword ? 'text' : 'password'} name='confirmPassword' value={formData.confirmPassword} onChange={handleChange} className='bg-black p-4 rounded-xl w-full border border-gray-700 text-white pr-10' required />
+              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-sm">
+                {showConfirmPassword ? '🙈' : '👁'}
+              </button>
+            </div>
+            {errors.confirmPassword && <span className="text-red-400 text-sm">{errors.confirmPassword}</span>}
+          </div>
 
           <h2 className='md:col-span-2 text-xl font-bold text-yellow-400 mt-4 mb-2'>SIGNATURE</h2>
 
@@ -328,10 +380,11 @@ const SignaturePad = ({ onSignature }) => {
   };
 
   const startDrawing = (e) => {
+    const canvas = canvasRef.current;
+    if (canvas) canvas.style.touchAction = 'none';
     e.preventDefault();
     setIsDrawing(true);
     const pos = getPos(e);
-    const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
@@ -347,17 +400,19 @@ const SignaturePad = ({ onSignature }) => {
     ctx.stroke();
   };
 
-  const stopDrawing = (e) => {
+   const stopDrawing = () => {
     if (!isDrawing) return;
     setIsDrawing(false);
-    setHasSignature(true);
     const canvas = canvasRef.current;
+    if (canvas) canvas.style.touchAction = 'auto';
+    setHasSignature(true);
     const dataUrl = canvas.toDataURL('image/png');
     onSignature(dataUrl);
   };
 
   const clearSignature = () => {
     const canvas = canvasRef.current;
+    if (canvas) canvas.style.touchAction = 'auto';
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
     ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
@@ -369,7 +424,7 @@ const SignaturePad = ({ onSignature }) => {
     <div>
       <canvas
         ref={canvasRef}
-        className="bg-white border border-gray-600 rounded-xl w-full cursor-crosshair touch-none"
+        className="bg-white border border-gray-600 rounded-xl w-full cursor-crosshair"
         style={{ height: '200px' }}
         onMouseDown={startDrawing}
         onMouseMove={draw}

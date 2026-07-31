@@ -95,7 +95,8 @@ const StateChapters = () => {
             {loadingMembers ? (
               <p className='text-gray-400 text-sm'>Loading members...</p>
             ) : members.length > 0 ? (
-              <div className='overflow-x-auto'>
+              <environment_details className='overflow-x-auto mb-6 border border-gray-800 rounded-xl'>
+                <summary className='p-3 text-yellow-400 font-bold cursor-pointer hover:text-yellow-300'>Member List</summary>
                 <table className='w-full text-sm'>
                   <thead>
                     <tr className='border-b border-gray-800'>
@@ -120,7 +121,7 @@ const StateChapters = () => {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </environment_details>
             ) : (
               <p className='text-gray-500 text-sm'>No members found for this chapter.</p>
             )}

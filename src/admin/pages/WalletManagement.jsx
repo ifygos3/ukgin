@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const WalletManagement = () => {
   const [wallets, setWallets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,7 @@ const WalletManagement = () => {
 
   const fetchWallets = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/users/wallets/', {
+      const res = await axios.get(`${API_BASE_URL}/users/wallets/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setWallets(res.data.results || res.data);
@@ -26,7 +28,7 @@ const WalletManagement = () => {
 
   const handleCredit = async (walletId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/wallets/${walletId}/credit/`, { amount: creditAmount, description }, {
+      await axios.post(`${API_BASE_URL}/users/wallets/${walletId}/credit/`, { amount: creditAmount, description }, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
       setCreditAmount('');
@@ -37,7 +39,7 @@ const WalletManagement = () => {
 
   const handleDebit = async (walletId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/wallets/${walletId}/debit/`, { amount: debitAmount, description }, {
+      await axios.post(`${API_BASE_URL}/users/wallets/${walletId}/debit/`, { amount: debitAmount, description }, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
       setDebitAmount('');
@@ -48,7 +50,7 @@ const WalletManagement = () => {
 
   const handleFreeze = async (walletId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/wallets/${walletId}/freeze/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/wallets/${walletId}/freeze/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchWallets();
@@ -57,7 +59,7 @@ const WalletManagement = () => {
 
   const handleUnfreeze = async (walletId) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/users/wallets/${walletId}/unfreeze/`, {}, {
+      await axios.post(`${API_BASE_URL}/users/wallets/${walletId}/unfreeze/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchWallets();
@@ -66,7 +68,7 @@ const WalletManagement = () => {
 
   const viewTransactions = async (walletId) => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/users/wallet-transactions/?wallet_id=${walletId}`, {
+      const res = await axios.get(`${API_BASE_URL}/users/wallet-transactions/?wallet_id=${walletId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTransactions(res.data.results || res.data);

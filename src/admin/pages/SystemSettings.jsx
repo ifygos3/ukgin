@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const SystemSettings = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ const SystemSettings = () => {
 
   const fetchSettings = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/users/system-settings/', {
+      const res = await axios.get(`${API_BASE_URL}/users/system-settings/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSettings(res.data);
@@ -23,7 +25,7 @@ const SystemSettings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.put('http://127.0.0.1:8000/users/system-settings/', settings, {
+      await axios.put(`${API_BASE_URL}/users/system-settings/`, settings, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
       alert('Settings saved successfully');

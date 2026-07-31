@@ -1,8 +1,23 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
 const Home = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/users/public/announcements/`);
+        setAnnouncements(res.data || []);
+      } catch { setAnnouncements([]); }
+    };
+    fetchAnnouncements();
+  }, []);
 
   if (isAuthenticated) {
     return (
@@ -73,7 +88,7 @@ const Home = () => {
       <section className='h-screen bg-cover bg-center relative flex items-center justify-center text-center px-6' style={{ backgroundImage: "url('https://res.cloudinary.com/dtxdhkaqs/image/upload/v1779099458/men_women_with_ishiagu_w24uj4.png')" }}>
         <div className='absolute inset-0 bg-black/70'></div>
         <div className='relative z-10 max-w-5xl'>
-          <h1 className='text-5xl md:text-7xl font-extrabold leading-tight'>
+          <h1 className='text-4xl md:text-7xl font-extrabold leading-tight'>
             UNITED KINGDOM OF GREAT IGBO NATION
           </h1>
           <p className='mt-6 text-lg md:text-xl text-gray-200 leading-8'>
@@ -86,6 +101,24 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+       {/* Announcements */}
+      {announcements.length > 0 && (
+        <section className='py-12 px-6 md:px-20 bg-gray-900'>
+          <div className='max-w-4xl mx-auto'>
+            <h2 className='text-3xl font-bold text-yellow-400 text-center mb-8'>Latest Announcements</h2>
+            <div className='space-y-4'>
+              {announcements.map((ann) => (
+                <div key={ann.id} className='bg-gray-800 p-6 rounded-2xl border border-gray-700'>
+                  <h3 className='text-xl font-bold text-white mb-1'>{ann.title}</h3>
+                  <p className='text-gray-300 text-sm'>{ann.message}</p>
+                  <span className='text-gray-500 text-xs mt-2 block'>{new Date(ann.created_at).toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Mission & Vision */}
       <section className='py-20 px-6 md:px-20'>

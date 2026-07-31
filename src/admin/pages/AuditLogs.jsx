@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const AuditLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ const AuditLogs = () => {
     try {
       const params = new URLSearchParams();
       if (actionFilter) params.set('action', actionFilter);
-      const res = await axios.get(`http://127.0.0.1:8000/users/audit-logs/?${params.toString()}`, {
+      const res = await axios.get(`${API_BASE_URL}/users/audit-logs/?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLogs(res.data.results || res.data);

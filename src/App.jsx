@@ -1,6 +1,8 @@
-import { Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import NotificationToast from './components/NotificationToast';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 import Home from './pages/Home';
@@ -23,6 +25,7 @@ import StateChapters from './pages/StateChapters';
 import Testimonials from './pages/Testimonials';
 import Blog from './pages/Blog';
 import ConstitutionReader from './pages/ConstitutionReader';
+import PaymentEvidence from './pages/PaymentEvidence';
 
 import AdminLayout from './admin/components/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
@@ -37,18 +40,30 @@ import ReferralManagement from './admin/pages/ReferralManagement';
 import ReportsAnalytics from './admin/pages/ReportsAnalytics';
 import SystemSettings from './admin/pages/SystemSettings';
 import AuditLogs from './admin/pages/AuditLogs';
+import AdminEvents from './admin/pages/AdminEvents';
+import AnnouncementManagement from './admin/pages/AnnouncementManagement';
 
 const App = () => {
+  const [notification, setNotification] = useState(null);
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type });
+  };
+
   return (
     <div className='bg-gray-950 text-white min-h-screen'>
-      <Navbar />
+      {!isAdminRoute && <Navbar showNotification={showNotification} />}
+      <NotificationToast notification={notification} onClose={() => setNotification(null)} />
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/donation' element={<Donation />} />
-        <Route path='/signup' element={<Signup />} />
-        <Route path='/login' element={<Login />} />
+        <Route path='/payment-evidence' element={<PaymentEvidence />} />
+        <Route path='/signup' element={<Signup showNotification={showNotification} />} />
+        <Route path='/login' element={<Login showNotification={showNotification} />} />
         <Route path='/reset-password' element={<PasswordReset />} />
         <Route path='/events' element={<Events />} />
         <Route path='/gallery' element={<Gallery />} />
@@ -115,9 +130,18 @@ const App = () => {
           <Route path="reports" element={<ReportsAnalytics />} />
           <Route path="audit-logs" element={<AuditLogs />} />
           <Route path="settings" element={<SystemSettings />} />
+          <Route path="events" element={<Events />} />
+          <Route path="event-management" element={<AdminEvents />} />
+          <Route path="announcements" element={<AnnouncementManagement />} />
+          <Route path="gallery" element={<Gallery />} />
+          <Route path="volunteers" element={<Volunteer />} />
+          <Route path="partners" element={<Partners />} />
+          <Route path="sponsors" element={<Sponsors />} />
+          <Route path="state-chapters" element={<StateChapters />} />
+          <Route path="documents" element={<DocumentCenter />} />
         </Route>
       </Routes>
-      <Footer />
+      {!isAdminRoute && <Footer />}
     </div>
   );
 }

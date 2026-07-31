@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,8 +17,8 @@ const AdminLogin = () => {
     setError('');
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/users/login/',
-        { username: email, password },
+        `${API_BASE_URL}/users/login/`,
+        { username: email, phone_number: email, password },
         { headers: { 'Content-Type': 'application/json' } }
       );
       const { access, refresh, user } = response.data;
@@ -49,7 +51,7 @@ const AdminLogin = () => {
         )}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Email or Username</label>
+            <label className="block text-sm text-gray-400 mb-1">Email, Username, or Phone Number</label>
             <input
               type="text"
               value={email}

@@ -24,6 +24,7 @@ const Donation = () => {
   const [donorName, setDonorName] = useState('');
   const [donorEmail, setDonorEmail] = useState('');
   const [settings, setSettings] = useState(null);
+  const [uploadedProofUrl, setUploadedProofUrl] = useState('');
   const token = localStorage.getItem('access_token');
 
   const presetAmounts = [5, 10, 15, 20, 25, 30, 40, 50, 70, 100, 120, 130, 150, 200, 250, 300, 350, 400, 450, 500];
@@ -112,7 +113,16 @@ const Donation = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setMessage({ type: 'success', text: 'Donation submitted successfully! Thank you for your generosity.' });
+      const response = await axios.post('http://127.0.0.1:8000/users/donations/', submitData, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const proofUrl = response?.data?.proof_of_donation_url || (proofFile ? URL.createObjectURL(proofFile) : '');
+      setUploadedProofUrl(proofUrl);
+      setMessage({ type: 'success', text: 'Donation submitted successfully! Your proof of donation is ready below.' });
       setAmount('');
       setCustomAmount('');
       setBankName('');
@@ -221,6 +231,17 @@ const Donation = () => {
               <div className={`mb-6 p-4 rounded-xl ${message.type === 'success' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>{message.text}</div>
             )}
 
+            {uploadedProofUrl && (
+              <div className='mb-6 rounded-2xl border border-yellow-400/30 bg-black/30 p-4'>
+                <h3 className='text-lg font-bold text-yellow-400 mb-3'>Your proof of donation</h3>
+                {uploadedProofUrl.match(/\.(png|jpe?g|gif|webp|svg)$/i) ? (
+                  <img src={uploadedProofUrl} alt='Uploaded donation proof' className='max-h-72 rounded-xl border border-gray-700 object-contain' />
+                ) : (
+                  <a href={uploadedProofUrl} target='_blank' rel='noreferrer' className='text-yellow-400 underline'>Open uploaded proof</a>
+                )}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className='space-y-5'>
               <div>
                 <label className='block text-sm text-gray-400 mb-1'>Payment Method</label>
@@ -325,8 +346,9 @@ const Donation = () => {
               )}
 
               <div>
-                <label className='block text-sm text-gray-400 mb-1'>Proof of Payment (optional)</label>
+                <label className='block text-sm text-gray-400 mb-1'>Proof of Donation</label>
                 <input type='file' accept='image/*,.pdf' onChange={(e) => setProofFile(e.target.files[0])} className='w-full bg-black p-4 rounded-xl border border-gray-700 text-white' />
+                <p className='text-xs text-gray-500 mt-2'>Upload a screenshot or PDF so your proof of donation appears right after submission.</p>
               </div>
 
               <div>
@@ -334,7 +356,7 @@ const Donation = () => {
                 <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder='Add a note (optional)' rows='3' className='w-full bg-black p-4 rounded-xl border border-gray-700 text-white' />
               </div>
 
-              <button type='submit' disabled={loading} className={`w-full bg-yellow-400 text-gray-900 p-4 rounded-xl font-bold transition-colors hover:bg-yellow-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              <button type='submit' disabled={loading} className={`sticky bottom-4 z-50 w-full bg-yellow-400 text-gray-900 p-4 rounded-xl font-bold transition-colors hover:bg-yellow-500 shadow-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                 {loading ? 'Submitting Donation...' : 'Submit Donation'}
               </button>
 
