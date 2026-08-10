@@ -84,7 +84,7 @@ const AuditLogs = () => {
                 <td className="p-3">{log.target_user?.full_name || 'N/A'}</td>
                 <td className="p-3 text-gray-400 text-xs max-w-xs truncate">{log.details}</td>
                 <td className="p-3 text-gray-400 text-xs">{log.ip_address}</td>
-                <td className="p-3 text-gray-400 text-xs">{new Date(log.created_at).toLocaleString()}</td>
+                <td className="p-3 text-gray-400 text-xs">{log.created_at ? new Date(log.created_at).toLocaleString() : '—'}</td>
               </tr>
             ))}
           </tbody>

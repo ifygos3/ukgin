@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.18.1",
     "country-state-city-custom": "^1.1.5",
+    "framer-motion": "^12.43.0",
     "react": "^19.2.6",
     "react-country-state-city": "^1.1.13",
     "react-dom": "^19.2.6",

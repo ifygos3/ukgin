@@ -1,10 +1,114 @@
-.nav-link{
-    
+.nav-link {
+  color: #d1d5db;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  white-space: nowrap;
 }
 
+.nav-link:hover {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.08);
+}
 
-.active{
-text-decoration: underline;
-text-decoration-color: rgb(188, 142, 3);
-text-decoration-thickness: 2px;
+.nav-link.active {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.admin-link {
+  color: #facc15 !important;
+  font-weight: 700;
+  background: rgba(250, 204, 21, 0.1);
+  border: 1px solid rgba(250, 204, 21, 0.2);
+}
+
+.admin-link:hover {
+  background: rgba(250, 204, 21, 0.15);
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.2s ease-out;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Sidebar link styles */
+aside nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #d1d5db;
+  transition: all 0.2s ease;
+}
+
+aside nav a:hover {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.08);
+}
+
+aside nav a.active {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.1);
+  font-weight: 700;
+}
+
+/* Mobile drawer link styles */
+.mobile-drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #d1d5db;
+  transition: all 0.2s ease;
+}
+
+.mobile-drawer-link:hover {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.08);
+}
+
+.mobile-drawer-link.active {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.1);
+  font-weight: 700;
+}
+
+@media (max-width: 1279px) {
+  .nav-link {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
 }

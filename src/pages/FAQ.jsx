@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -14,20 +14,23 @@ const FAQ = () => {
   ];
 
   return (
-    <div className='pt-32 px-6 md:px-20'>
-      <h1 className='text-5xl font-bold text-yellow-400 mb-6'>Frequently Asked Questions</h1>
-      <div className='max-w-3xl mx-auto space-y-3'>
-        {faqs.map((faq, i) => (
-          <div key={i} className='bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden'>
-            <button onClick={() => setOpenIndex(openIndex === i ? null : i)} className='w-full p-6 text-left flex justify-between items-center'>
-              <span className='text-white font-bold'>{faq.q}</span>
-              <span className='text-yellow-400 text-xl'>{openIndex === i ? '−' : '+'}</span>
-            </button>
-            {openIndex === i && (
-              <div className='px-6 pb-6 text-gray-300 leading-7'>{faq.a}</div>
-            )}
-          </div>
-        ))}
+    <div className="min-h-screen pt-16 sm:pt-18 md:pt-20 px-4 sm:px-6 md:px-8 text-white">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-5xl font-bold text-yellow-400 mb-6 text-center">Frequently Asked Questions</h1>
+        <p className="text-gray-300 text-lg mb-10 text-center">Find answers to common questions about UKGIN membership, events, and services.</p>
+        <div className="space-y-3">
+          {faqs.map((faq, i) => (
+            <div key={i} className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-800 overflow-hidden hover:border-yellow-400/30 transition">
+              <button onClick={() => setOpenIndex(openIndex === i ? null : i)} className="w-full p-5 sm:p-6 text-left flex justify-between items-center gap-4" aria-expanded={openIndex === i}>
+                <span className="text-white font-bold text-base sm:text-lg">{faq.q}</span>
+                <span className="text-yellow-400 text-xl font-bold shrink-0 transition-transform duration-200" style={{ transform: openIndex === i ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
+              </button>
+              <div className={`overflow-hidden transition-all duration-300 ${openIndex === i ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="px-5 sm:px-6 pb-5 sm:pb-6 text-gray-300 leading-7">{faq.a}</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useNotification } from '../../contexts/NotificationContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
@@ -10,6 +11,7 @@ const AnnouncementManagement = () => {
   const [formData, setFormData] = useState({ title: '', message: '', is_active: true });
   const [saving, setSaving] = useState(false);
   const token = localStorage.getItem('access_token');
+  const { showNotification } = useNotification();
 
   const fetchAnnouncements = useCallback(async () => {
     try {
@@ -56,8 +58,9 @@ const AnnouncementManagement = () => {
         });
       }
       fetchAnnouncements();
+      showNotification(editingAnnouncement ? 'Announcement updated successfully.' : 'Announcement created successfully.', 'success');
       closeForm();
-    } catch (err) { console.error(err); alert('Failed to save announcement.'); }
+    } catch (err) { console.error(err);       showNotification('Failed to save announcement.', 'error'); }
     finally { setSaving(false); }
   };
 
@@ -66,7 +69,8 @@ const AnnouncementManagement = () => {
     try {
       await axios.delete(`${API_BASE_URL}/users/announcements/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
       setAnnouncements(announcements.filter(a => a.id !== id));
-    } catch (err) { console.error(err); alert('Failed to delete announcement.'); }
+      showNotification('Announcement deleted successfully.', 'success');
+    } catch (err) { console.error(err); showNotification('Failed to delete announcement.', 'error'); }
   };
 
   const handleChange = (e) => {

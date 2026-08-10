@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useNotification } from '../../contexts/NotificationContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
@@ -23,7 +24,9 @@ const UserManagement = () => {
   const [savingUser, setSavingUser] = useState(false);
   const [userResponses, setUserResponses] = useState([]);
   const [loadingResponses, setLoadingResponses] = useState(false);
+  const [error, setError] = useState('');
   const token = localStorage.getItem('access_token');
+  const { showNotification } = useNotification();
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -36,8 +39,10 @@ const UserManagement = () => {
       });
       setUsers(res.data.results || res.data);
       setTotal(res.data.count || res.data.length);
+      setError('');
     } catch (err) {
       console.error(err);
+      setError(err?.response?.data?.detail || err?.message || 'Failed to load users.');
     }
   }, [search, statusFilter, roleFilter, token]);
 
@@ -58,10 +63,25 @@ const UserManagement = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchUsers();
-      alert(`Action ${action} completed successfully`);
+      showNotification(`Action ${action} completed successfully`, 'success');
     } catch (err) {
       const msg = err?.response?.data?.detail || err?.message || 'Action failed';
-      alert(`Action failed: ${msg}`);
+      showNotification(`Action failed: ${msg}`, 'error');
+      console.error(err);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/users/create_user/${userId}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchUsers();
+      showNotification('User deleted successfully', 'success');
+    } catch (err) {
+      const msg = err?.response?.data?.detail || err?.message || 'Delete failed';
+      showNotification(`Delete failed: ${msg}`, 'error');
       console.error(err);
     }
   };
@@ -116,6 +136,18 @@ const UserManagement = () => {
       state_of_residence: user.state_of_residence || '',
       lga: user.lga || '',
       community: user.community || '',
+      place_of_birth: user.place_of_birth || '',
+      sex: user.sex || '',
+      highest_qualification: user.highest_qualification || '',
+      institution_attended: user.institution_attended || '',
+      year_of_graduation: user.year_of_graduation || '',
+      profession: user.profession || '',
+      current_job: user.current_job || '',
+      job_title: user.job_title || '',
+      job_experience: user.job_experience || '',
+      current_employee: user.current_employee || '',
+      about_user: user.about_user || '',
+      signature_data: user.signature_data || '',
       role: user.role || 'member',
       kyc_status: user.kyc_status || 'pending',
     });
@@ -168,6 +200,7 @@ const UserManagement = () => {
         <h1 className="text-3xl font-bold text-yellow-400">User Management</h1>
         <div className="text-gray-400">{total} users</div>
       </div>
+      {error && <div className="mb-4 p-4 rounded-xl bg-red-500/15 text-red-300 border border-red-500/20">{error}</div>}
       <form onSubmit={handleSearch} className="flex gap-4 mb-6 flex-wrap">
         <input
           type="text"
@@ -200,6 +233,7 @@ const UserManagement = () => {
               <th className="text-left p-3 text-gray-400">Role</th>
               <th className="text-left p-3 text-gray-400">Status</th>
               <th className="text-left p-3 text-gray-400">KYC</th>
+              <th className="text-left p-3 text-gray-400">Signature</th>
               <th className="text-left p-3 text-gray-400">Actions</th>
             </tr>
           </thead>
@@ -225,6 +259,7 @@ const UserManagement = () => {
                 </td>
                 <td className="p-3">{getStatusBadge(user)}</td>
                 <td className="p-3"><span className={`px-2 py-1 rounded text-xs ${user.kyc_status === 'approved' ? 'bg-green-500/20 text-green-300' : user.kyc_status === 'rejected' ? 'bg-red-500/20 text-red-300' : 'bg-yellow-500/20 text-yellow-300'}`}>{user.kyc_status}</span></td>
+                <td className="p-3">{user.signature_data ? <span className="text-green-400 text-xs font-bold">✓ Signed</span> : <span className="text-gray-500 text-xs">—</span>}</td>
                 <td className="p-3">
                   <div className="flex gap-2 flex-wrap">
                     <button 
@@ -287,6 +322,12 @@ const UserManagement = () => {
                     >
                       Event RSVPs
                     </button>
+                    <button 
+                      onClick={() => handleDeleteUser(user.id)} 
+                      className="text-red-500 hover:text-red-400 text-xs font-bold"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -327,7 +368,7 @@ const UserManagement = () => {
                 <input value={editForm.country || ''} onChange={(e) => setEditForm({ ...editForm, country: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
               </div>
               <div>
-                <label className='block text-sm text-gray-400 mb-1'>State Chapter</label>
+                <label className='block text-sm text-gray-400 mb-1'>State of Origin</label>
                 <input value={editForm.state_of_origin || ''} onChange={(e) => setEditForm({ ...editForm, state_of_origin: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
               </div>
               <div>
@@ -343,8 +384,69 @@ const UserManagement = () => {
                 <input value={editForm.community || ''} onChange={(e) => setEditForm({ ...editForm, community: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
               </div>
               <div>
+                <label className='block text-sm text-gray-400 mb-1'>Place of Birth</label>
+                <input value={editForm.place_of_birth || ''} onChange={(e) => setEditForm({ ...editForm, place_of_birth: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Sex</label>
+                <select value={editForm.sex || ''} onChange={(e) => setEditForm({ ...editForm, sex: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white'>
+                  <option value=''>Select Sex</option>
+                  <option value='Male'>Male</option>
+                  <option value='Female'>Female</option>
+                  <option value='Other'>Other</option>
+                </select>
+              </div>
+              <div>
                 <label className='block text-sm text-gray-400 mb-1'>Address</label>
                 <input value={editForm.address || ''} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Highest Qualification</label>
+                <input value={editForm.highest_qualification || ''} onChange={(e) => setEditForm({ ...editForm, highest_qualification: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Institution Attended</label>
+                <input value={editForm.institution_attended || ''} onChange={(e) => setEditForm({ ...editForm, institution_attended: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Year of Graduation</label>
+                <input value={editForm.year_of_graduation || ''} onChange={(e) => setEditForm({ ...editForm, year_of_graduation: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Profession</label>
+                <input value={editForm.profession || ''} onChange={(e) => setEditForm({ ...editForm, profession: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Current Job Title</label>
+                <input value={editForm.job_title || ''} onChange={(e) => setEditForm({ ...editForm, job_title: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Current Job</label>
+                <input value={editForm.current_job || ''} onChange={(e) => setEditForm({ ...editForm, current_job: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div>
+                <label className='block text-sm text-gray-400 mb-1'>Current Employer</label>
+                <input value={editForm.current_employee || ''} onChange={(e) => setEditForm({ ...editForm, current_employee: e.target.value })} className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div className='md:col-span-2'>
+                <label className='block text-sm text-gray-400 mb-1'>Job Experience</label>
+                <textarea value={editForm.job_experience || ''} onChange={(e) => setEditForm({ ...editForm, job_experience: e.target.value })} rows='3' className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div className='md:col-span-2'>
+                <label className='block text-sm text-gray-400 mb-1'>About User</label>
+                <textarea value={editForm.about_user || ''} onChange={(e) => setEditForm({ ...editForm, about_user: e.target.value })} rows='3' className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white' />
+              </div>
+              <div className='md:col-span-2'>
+                <label className='block text-sm text-gray-400 mb-1'>Signature</label>
+                {editForm.signature_data ? (
+                  <img src={editForm.signature_data} alt="User signature" className="w-full max-h-40 object-contain rounded-lg border border-gray-700 bg-white p-2 mb-2" />
+                ) : (
+                  <p className="text-gray-500 text-sm mb-2">No signature provided.</p>
+                )}
+              </div>
+              <div className='md:col-span-2'>
+                <label className='block text-sm text-gray-400 mb-1'>Signature Data (base64)</label>
+                <textarea value={editForm.signature_data || ''} onChange={(e) => setEditForm({ ...editForm, signature_data: e.target.value })} rows='2' className='w-full bg-black p-3 rounded-xl border border-gray-700 text-white font-mono text-xs' />
               </div>
               <div>
                 <label className='block text-sm text-gray-400 mb-1'>Role</label>

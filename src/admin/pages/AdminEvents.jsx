@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useNotification } from '../../contexts/NotificationContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
@@ -13,20 +14,22 @@ const AdminEvents = () => {
   const [formData, setFormData] = useState({ name: '', description: '', event_date: '', location: '', event_type: '', is_featured: false, is_past: false });
   const [saving, setSaving] = useState(false);
   const token = localStorage.getItem('access_token');
+  const { showNotification } = useNotification();
 
   const fetchEvents = useCallback(async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/users/events/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setEvents(res.data.results || res.data);
+      const eventsList = res.data.results || res.data;
+      setEvents(eventsList);
       const counts = {};
-      for (const ev of (res.data.results || res.data)) {
+      for (const ev of eventsList) {
         try {
           const rRes = await axios.get(`${API_BASE_URL}/users/admin/event-responses/?event_id=${ev.id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const responses = rRes.data.results || rRes.data;
+          const responses = rRes.data.results || rRes.data || [];
           counts[ev.id] = {
             going: responses.filter(r => r.response_type === 'going').length,
             interested: responses.filter(r => r.response_type === 'interested').length,
@@ -82,8 +85,9 @@ const AdminEvents = () => {
         });
       }
       fetchEvents();
+      showNotification(editingEvent ? 'Event updated successfully.' : 'Event created successfully.', 'success');
       closeForm();
-    } catch (err) { console.error(err); alert('Failed to save event.'); }
+    } catch (err) { console.error(err);       showNotification('Failed to save event.', 'error'); }
     finally { setSaving(false); }
   };
 
@@ -92,7 +96,8 @@ const AdminEvents = () => {
     try {
       await axios.delete(`${API_BASE_URL}/users/events/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
       setEvents(events.filter(e => e.id !== id));
-    } catch (err) { console.error(err); alert('Failed to delete event.'); }
+      showNotification('Event deleted successfully.', 'success');
+    } catch (err) { console.error(err); showNotification('Failed to delete event.', 'error'); }
   };
 
   const handleChange = (e) => {
@@ -176,7 +181,7 @@ const AdminEvents = () => {
                 <td className="p-3 text-gray-400">{event.id}</td>
                 <td className="p-3 text-white font-bold">{event.name}</td>
                 <td className="p-3 text-gray-400">{event.event_type}</td>
-                <td className="p-3 text-gray-400 text-xs">{new Date(event.event_date).toLocaleString()}</td>
+                <td className="p-3 text-gray-400 text-xs">{event.event_date ? new Date(event.event_date).toLocaleString() : '—'}</td>
                 <td className="p-3 text-gray-400">{event.location}</td>
                 <td className="p-3">{event.is_featured ? '✅' : '—'}</td>
                 <td className="p-3">{event.is_past ? <span className="text-gray-400">Past</span> : <span className="text-green-400">Upcoming</span>}</td>
