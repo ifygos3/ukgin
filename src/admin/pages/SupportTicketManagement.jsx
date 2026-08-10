@@ -65,9 +65,9 @@ const SupportTicketManagement = () => {
   return (
     <div>
       <h1 className="text-3xl font-bold text-yellow-400 mb-6">Support Tickets</h1>
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {['all', 'open', 'in_progress', 'closed', 'reopened'].map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${filter === f ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
+          <button key={f} onClick={() => setFilter(f)} className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors ${filter === f ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
             {f.replace('_', ' ').charAt(0).toUpperCase() + f.replace('_', ' ').slice(1)}
           </button>
         ))}

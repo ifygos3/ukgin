@@ -151,50 +151,52 @@ const StateChapterManagement = () => {
         </form>
       </div>
 
-      <div className="overflow-x-auto border border-gray-800 rounded-xl">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-800 bg-gray-800/30">
-              <th className="text-left p-3 text-gray-400">#</th>
-              <th className="text-left p-3 text-gray-400">State</th>
-              <th className="text-left p-3 text-gray-400">Coordinator</th>
-              <th className="text-left p-3 text-gray-400">Email</th>
-              <th className="text-left p-3 text-gray-400">Phone</th>
-              <th className="text-left p-3 text-gray-400">Members</th>
-              <th className="text-left p-3 text-gray-400">Active</th>
-              <th className="text-left p-3 text-gray-400">Order</th>
-              <th className="text-right p-3 text-gray-400">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {chapters.length === 0 ? (
-              <tr>
-                <td colSpan="9" className="p-4 text-center text-gray-400">No state chapters found.</td>
+      <div className="overflow-x-auto -mx-3 sm:mx-0 border border-gray-800 rounded-xl">
+        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-gray-800 bg-gray-800/30">
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">#</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">State</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Coordinator</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Email</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Phone</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Members</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Active</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Order</th>
+                <th className="text-right p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Actions</th>
               </tr>
-            ) : (
-              chapters.map((chapter, i) => (
-                <tr key={chapter.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                  <td className="p-3 text-gray-500">{i + 1}</td>
-                  <td className="p-3 text-white font-medium">{chapter.state || '—'}</td>
-                  <td className="p-3 text-gray-300">{chapter.coordinator || '—'}</td>
-                  <td className="p-3 text-gray-400">{chapter.email || '—'}</td>
-                  <td className="p-3 text-gray-400">{chapter.phone || '—'}</td>
-                  <td className="p-3 text-gray-400">{chapter.members != null ? chapter.members : 0}</td>
-                  <td className="p-3">
-                    <span className={`px-2 py-1 rounded text-xs ${chapter.is_active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>{chapter.is_active ? 'Yes' : 'No'}</span>
-                  </td>
-                  <td className="p-3 text-gray-400">{chapter.order}</td>
-                  <td className="p-3 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button onClick={() => openEdit(chapter)} className="bg-yellow-500 text-black px-3 py-1 rounded-lg text-xs font-bold hover:bg-yellow-400">Edit</button>
-                      <button onClick={() => handleDelete(chapter.id)} className="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-500">Delete</button>
-                    </div>
-                  </td>
+            </thead>
+            <tbody>
+              {chapters.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="p-4 text-center text-gray-400 text-sm">No state chapters found.</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                chapters.map((chapter, i) => (
+                  <tr key={chapter.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                    <td className="p-2 sm:p-3 text-gray-500 text-xs sm:text-sm whitespace-nowrap">{i + 1}</td>
+                    <td className="p-2 sm:p-3 text-white font-medium text-xs sm:text-sm whitespace-nowrap">{chapter.state || '—'}</td>
+                    <td className="p-2 sm:p-3 text-gray-300 text-xs sm:text-sm whitespace-nowrap">{chapter.coordinator || '—'}</td>
+                    <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{chapter.email || '—'}</td>
+                    <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{chapter.phone || '—'}</td>
+                    <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{chapter.members != null ? chapter.members : 0}</td>
+                    <td className="p-2 sm:p-3 whitespace-nowrap">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] sm:text-xs ${chapter.is_active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>{chapter.is_active ? 'Yes' : 'No'}</span>
+                    </td>
+                    <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{chapter.order}</td>
+                    <td className="p-2 sm:p-3">
+                      <div className="flex justify-end gap-1.5 sm:gap-2">
+                        <button onClick={() => openEdit(chapter)} className="bg-yellow-500 text-black px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold hover:bg-yellow-400 min-h-[32px] sm:min-h-[36px]">Edit</button>
+                        <button onClick={() => handleDelete(chapter.id)} className="bg-red-600 text-white px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold hover:bg-red-500 min-h-[32px] sm:min-h-[36px]">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

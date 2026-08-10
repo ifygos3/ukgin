@@ -348,7 +348,6 @@ const Navbar = ({ showNotification }) => {
                 </div>
 
                 <span className='text-gray-300 text-sm font-semibold hidden xl:block'>{user?.first_name || 'User'}</span>
-                <button onClick={() => navigate('/delete-account')} className='hover:text-red-400 transition text-sm font-semibold px-3 py-2 rounded-lg hover:bg-red-400/10 text-red-400'>Delete Account</button>
                 <button onClick={() => {
                   logout();
                   showNotification?.('You have been logged out successfully.', 'success');
@@ -417,7 +416,6 @@ const Navbar = ({ showNotification }) => {
                   )}
                   <div className='border-t border-gray-800 pt-2 mt-2 flex flex-col gap-3'>
                     <span className='text-gray-300 text-sm px-4 font-medium'>{user?.first_name || 'User'}</span>
-                    <button onClick={() => { navigate('/delete-account'); setMobileOpen(false); }} className='text-left text-red-400 hover:text-red-300 hover:bg-red-400/10 py-3 px-4 rounded-xl transition font-medium min-h-[44px] flex items-center'>Delete Account</button>
                     <button onClick={() => { logout(); setMobileOpen(false); showNotification?.('You have been logged out successfully.', 'success'); }} className='text-left text-red-400 hover:text-red-300 hover:bg-red-400/10 py-3 px-4 rounded-xl transition font-medium min-h-[44px] flex items-center'>Logout</button>
                   </div>
                 </div>

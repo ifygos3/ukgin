@@ -155,38 +155,40 @@ const PageContentManagement = () => {
         </form>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left p-3 text-gray-400">ID</th>
-              <th className="text-left p-3 text-gray-400">Title</th>
-              <th className="text-left p-3 text-gray-400">Page Slug</th>
-              <th className="text-left p-3 text-gray-400">Page Type</th>
-              <th className="text-left p-3 text-gray-400">Published</th>
-              <th className="text-left p-3 text-gray-400">Updated</th>
-              <th className="text-left p-3 text-gray-400">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pages.map((page) => (
-              <tr key={page.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                <td className="p-3 text-gray-400">{page.id}</td>
-                <td className="p-3 text-white font-bold">{page.title}</td>
-                <td className="p-3 text-gray-400">{page.slug}</td>
-                <td className="p-3 text-gray-400">{page.page_type}</td>
-                <td className="p-3">{page.is_published ? <span className="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs">Yes</span> : <span className="bg-gray-500/20 text-gray-300 px-2 py-1 rounded text-xs">No</span>}</td>
-                <td className="p-3 text-gray-400 text-xs">{new Date(page.updated_at).toLocaleDateString()}</td>
-                <td className="p-3">
-                  <div className="flex gap-2 flex-wrap">
-                    <button onClick={() => openEdit(page)} className="text-blue-400 hover:text-blue-300 text-xs font-bold">Edit</button>
-                    <button onClick={() => handleDelete(page.id)} className="text-red-400 hover:text-red-300 text-xs font-bold">Delete</button>
-                  </div>
-                </td>
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
+          <table className="w-full text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">ID</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Title</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Page Slug</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Page Type</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Published</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Updated</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {pages.map((page) => (
+                <tr key={page.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{page.id}</td>
+                  <td className="p-2 sm:p-3 text-white font-bold text-xs sm:text-sm whitespace-nowrap">{page.title}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{page.slug}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{page.page_type}</td>
+                  <td className="p-2 sm:p-3 whitespace-nowrap">{page.is_published ? <span className="bg-green-500/20 text-green-300 px-1.5 py-0.5 rounded text-[10px] sm:text-xs">Yes</span> : <span className="bg-gray-500/20 text-gray-300 px-1.5 py-0.5 rounded text-[10px] sm:text-xs">No</span>}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{new Date(page.updated_at).toLocaleDateString()}</td>
+                  <td className="p-2 sm:p-3">
+                    <div className="flex gap-1.5 sm:gap-2 flex-wrap">
+                      <button onClick={() => openEdit(page)} className="text-blue-400 hover:text-blue-300 text-[10px] sm:text-xs font-bold min-h-[32px] sm:min-h-[36px] px-1.5 sm:px-2 py-1 rounded hover:bg-blue-500/10 transition-colors">Edit</button>
+                      <button onClick={() => handleDelete(page.id)} className="text-red-400 hover:text-red-300 text-[10px] sm:text-xs font-bold min-h-[32px] sm:min-h-[36px] px-1.5 sm:px-2 py-1 rounded hover:bg-red-500/10 transition-colors">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {!loading && pages.length === 0 && (

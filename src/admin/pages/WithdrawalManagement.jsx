@@ -49,47 +49,49 @@ const WithdrawalManagement = () => {
   return (
     <div>
       <h1 className="text-3xl font-bold text-yellow-400 mb-6">Withdrawal Management</h1>
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {['all', 'pending', 'approved', 'rejected', 'processing', 'completed'].map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${filter === f ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
+          <button key={f} onClick={() => setFilter(f)} className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors ${filter === f ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
             {f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left p-3 text-gray-400">ID</th>
-              <th className="text-left p-3 text-gray-400">User</th>
-              <th className="text-left p-3 text-gray-400">Amount</th>
-              <th className="text-left p-3 text-gray-400">Method</th>
-              <th className="text-left p-3 text-gray-400">Status</th>
-              <th className="text-left p-3 text-gray-400">Date</th>
-              <th className="text-left p-3 text-gray-400">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {withdrawals.map((w) => (
-              <tr key={w.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                <td className="p-3 text-gray-400">{w.id}</td>
-                <td className="p-3">{w.user?.full_name || 'N/A'}</td>
-                <td className="p-3 text-red-400 font-bold">${w.amount}</td>
-                <td className="p-3 text-gray-400">{w.payment_method}</td>
-                <td className="p-3">{statusBadge(w.status)}</td>
-                <td className="p-3 text-gray-400 text-xs">{new Date(w.created_at).toLocaleDateString()}</td>
-                <td className="p-3">
-                  {w.status === 'pending' && (
-                    <div className="flex gap-2">
-                      <button onClick={() => handleApprove(w.id)} className="text-green-400 hover:text-green-300 text-xs font-bold">Approve</button>
-                      <button onClick={() => handleReject(w.id)} className="text-red-400 hover:text-red-300 text-xs font-bold">Reject</button>
-                    </div>
-                  )}
-                </td>
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
+          <table className="w-full text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">ID</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">User</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Amount</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Method</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Status</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Date</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {withdrawals.map((w) => (
+                <tr key={w.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{w.id}</td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">{w.user?.full_name || 'N/A'}</td>
+                  <td className="p-2 sm:p-3 text-red-400 font-bold text-xs sm:text-sm whitespace-nowrap">${w.amount}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{w.payment_method}</td>
+                  <td className="p-2 sm:p-3 whitespace-nowrap">{statusBadge(w.status)}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{new Date(w.created_at).toLocaleDateString()}</td>
+                  <td className="p-2 sm:p-3">
+                    {w.status === 'pending' && (
+                      <div className="flex gap-1.5 sm:gap-2">
+                        <button onClick={() => handleApprove(w.id)} className="text-green-400 hover:text-green-300 text-[10px] sm:text-xs font-bold min-h-[32px] sm:min-h-[36px] px-1.5 sm:px-2 py-1 rounded hover:bg-green-500/10 transition-colors">Approve</button>
+                        <button onClick={() => handleReject(w.id)} className="text-red-400 hover:text-red-300 text-[10px] sm:text-xs font-bold min-h-[32px] sm:min-h-[36px] px-1.5 sm:px-2 py-1 rounded hover:bg-red-500/10 transition-colors">Reject</button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

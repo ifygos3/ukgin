@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Skeleton } from './ui/Skeleton';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -11,7 +10,7 @@ const AdminLayout = () => {
   const location = useLocation();
   const { user, isAdmin, loading, logout } = useAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
       navigate('/login');
     }
@@ -79,61 +78,75 @@ const AdminLayout = () => {
     return path === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(path);
   };
 
-  const sidebarWidth = sidebarCollapsed ? 'w-16' : 'w-64';
+  const currentLabel = menuItems.find(item => isActive(item.path))?.label || 'Dashboard';
 
   return (
     <div className="flex min-h-screen bg-gray-950 text-white">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 bg-gray-900/95 backdrop-blur-xl border-r border-gray-800 transform transition-all duration-300 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 bg-gray-900/98 backdrop-blur-xl border-r border-gray-800 transform transition-all duration-300 lg:translate-x-0 flex flex-col lg:flex-col h-screen ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${sidebarWidth}`}
+        } ${sidebarCollapsed ? 'w-16 lg:w-16' : 'w-[85vw] max-w-[280px] lg:w-64'}`}
       >
-        <div className="h-16 sm:h-18 md:h-20 px-4 border-b border-gray-800 flex items-center justify-between">
+        {/* Header */}
+        <div className="h-14 sm:h-16 px-3 sm:px-4 border-b border-gray-800 flex items-center justify-between shrink-0">
           {!sidebarCollapsed && (
-            <Link to="/admin" className="text-yellow-400 font-bold text-lg sm:text-xl whitespace-nowrap truncate">
+            <Link to="/admin" className="text-yellow-400 font-bold text-base sm:text-lg truncate">
               UKGIN Admin
             </Link>
           )}
           <div className="flex items-center gap-1">
-            {!sidebarCollapsed && (
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="text-gray-400 hover:text-white p-1 text-lg lg:hidden"
-                title="Close sidebar"
-              >
-                ✕
-              </button>
-            )}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="text-gray-400 hover:text-white p-1.5 text-lg lg:hidden rounded-lg hover:bg-gray-800/50 transition-colors"
+              title="Close sidebar"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className={`text-gray-400 hover:text-white hover:bg-gray-800 p-1.5 text-xl rounded-lg transition-colors ${sidebarCollapsed ? 'flex' : 'hidden lg:flex'}`}
+              className={`text-gray-400 hover:text-white hover:bg-gray-800 p-1.5 text-lg rounded-lg transition-colors ${sidebarCollapsed ? 'flex' : 'hidden lg:flex'}`}
               title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {sidebarCollapsed ? '▸' : '◀'}
             </button>
           </div>
         </div>
-        <nav className="flex-1 overflow-y-auto py-2 h-[calc(100vh-5rem)]">
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-2 overscroll-contain min-h-0">
           {menuItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center px-4 py-3.5 text-base font-bold hover:bg-gray-800 transition-colors ${
+              className={`flex items-center gap-2.5 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold transition-colors ${
                 isActive(item.path)
-                  ? 'bg-gray-800 text-yellow-400 border-l-2 border-yellow-400'
-                  : 'text-gray-100'
+                  ? 'bg-gray-800/80 text-yellow-400 border-l-2 border-yellow-400'
+                  : 'text-gray-300 hover:text-white hover:bg-gray-800/60'
               } ${sidebarCollapsed ? 'justify-center' : ''}`}
               title={sidebarCollapsed ? item.label : undefined}
             >
-              <svg className={`w-5 h-5 ${sidebarCollapsed ? '' : 'mr-3'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${sidebarCollapsed ? '' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
               </svg>
               {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
             </Link>
           ))}
         </nav>
-        <div className="p-4 border-t border-gray-800">
+
+        {/* Footer / Logout */}
+        <div className="p-3 sm:p-4 border-t border-gray-800 shrink-0 space-y-2">
           <button
             onClick={handleLogout}
             className={`w-full bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg text-sm font-bold transition-colors ${
@@ -143,42 +156,57 @@ const AdminLayout = () => {
           >
             {sidebarCollapsed ? '➜' : 'Logout'}
           </button>
+          {!sidebarCollapsed && (
+            <button
+              onClick={() => navigate('/delete-account')}
+              className="w-full text-center text-[11px] text-gray-500 hover:text-red-400 transition-colors py-1"
+            >
+              Delete Account
+            </button>
+          )}
         </div>
       </aside>
 
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
+      {/* Main content area */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
-        <header className="sticky top-0 z-30 bg-gray-900/80 backdrop-blur-2xl border-b border-gray-800/50 px-3 sm:px-4 lg:px-6 h-14 sm:h-16 md:h-18 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        {/* Header */}
+        <header className="sticky top-0 z-30 bg-gray-900/90 backdrop-blur-xl border-b border-gray-800/80 px-3 sm:px-4 lg:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-400 hover:text-white p-2 text-xl lg:hidden rounded-lg hover:bg-gray-800/50 transition-colors"
+              className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-800/50 transition-colors lg:hidden shrink-0"
               title="Open sidebar"
+              aria-label="Open sidebar"
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="text-gray-400 hover:text-white hover:bg-gray-800/50 p-1.5 text-lg rounded-lg hidden lg:flex transition-colors"
+              className="text-gray-400 hover:text-white hover:bg-gray-800/50 p-1.5 rounded-lg transition-colors hidden lg:flex shrink-0"
               title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {sidebarCollapsed ? '▶' : '◀'}
             </button>
-            <div className="hidden sm:flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-extrabold text-white">
-                {menuItems.find(item => isActive(item.path))?.label || 'Dashboard'}
-              </h1>
-            </div>
+            <h1 className="text-sm sm:text-base md:text-lg font-extrabold text-white truncate">
+              {currentLabel}
+            </h1>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Mobile logout - visible only on small screens */}
+            <button
+              onClick={handleLogout}
+              className="lg:hidden text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-gray-800/50 transition-colors"
+              title="Logout"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+            {/* Search - hidden on mobile/tablet */}
             <div className="hidden md:flex items-center relative">
               <svg className="w-4 h-4 text-gray-500 absolute left-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -188,33 +216,42 @@ const AdminLayout = () => {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-gray-800/50 border border-gray-700 text-white text-sm rounded-xl pl-9 pr-4 py-1.5 w-48 lg:w-64 focus:outline-none focus:border-yellow-400/50 focus:ring-1 focus:ring-yellow-400/50 placeholder-gray-500"
+                className="bg-gray-800/50 border border-gray-700 text-white text-sm rounded-xl pl-9 pr-4 py-1.5 w-40 lg:w-56 focus:outline-none focus:border-yellow-400/50 focus:ring-1 focus:ring-yellow-400/50 placeholder-gray-500"
               />
             </div>
+
+            {/* View Site - hidden on small screens */}
             <a
               href="/"
               target="_blank"
               rel="noopener"
               className="hidden sm:flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-colors"
+              aria-label="View site"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4a2 2 0 00-2-2h-2m2-2h2a2 2 0 012 2v1m-6 0h6" />
               </svg>
               <span className="hidden lg:inline">View Site</span>
             </a>
+
+            {/* User profile */}
             <div className="flex items-center gap-2 pl-2 sm:pl-3 border-l border-gray-800">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-extrabold text-white leading-tight">{user?.first_name || 'Admin'}</p>
-                <p className="text-xs text-gray-400 font-medium leading-tight">{user?.email || 'admin@ukgin.org'}</p>
+              <div className="text-right hidden sm:block min-w-0">
+                <p className="text-sm font-extrabold text-white leading-tight truncate">{user?.first_name || 'Admin'}</p>
+                <p className="text-xs text-gray-400 font-medium leading-tight truncate max-w-[120px] lg:max-w-[180px]">{user?.email || 'admin@ukgin.org'}</p>
               </div>
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-gray-900 font-extrabold text-sm sm:text-base">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-gray-900 font-extrabold text-sm sm:text-base shrink-0">
                 {user?.first_name?.[0]?.toUpperCase() || 'A'}
               </div>
             </div>
           </div>
         </header>
+
+        {/* Page content */}
         <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 w-full">
-          <Outlet />
+          <div className="w-full max-w-full overflow-x-hidden">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

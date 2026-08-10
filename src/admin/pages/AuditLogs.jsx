@@ -64,31 +64,33 @@ const AuditLogs = () => {
           <option value="wallet_unfreeze">Wallet Unfrozen</option>
         </select>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left p-3 text-gray-400">Admin</th>
-              <th className="text-left p-3 text-gray-400">Action</th>
-              <th className="text-left p-3 text-gray-400">Target User</th>
-              <th className="text-left p-3 text-gray-400">Details</th>
-              <th className="text-left p-3 text-gray-400">IP</th>
-              <th className="text-left p-3 text-gray-400">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.map((log) => (
-              <tr key={log.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                <td className="p-3">{log.admin_user?.full_name || 'System'}</td>
-                <td className="p-3">{actionBadge(log.action)}</td>
-                <td className="p-3">{log.target_user?.full_name || 'N/A'}</td>
-                <td className="p-3 text-gray-400 text-xs max-w-xs truncate">{log.details}</td>
-                <td className="p-3 text-gray-400 text-xs">{log.ip_address}</td>
-                <td className="p-3 text-gray-400 text-xs">{log.created_at ? new Date(log.created_at).toLocaleString() : '—'}</td>
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
+          <table className="w-full text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Admin</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Action</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Target User</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Details</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">IP</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Date</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {logs.map((log) => (
+                <tr key={log.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <td className="p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">{log.admin_user?.full_name || 'System'}</td>
+                  <td className="p-2 sm:p-3 whitespace-nowrap">{actionBadge(log.action)}</td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">{log.target_user?.full_name || 'N/A'}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm max-w-xs truncate">{log.details}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{log.ip_address}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{log.created_at ? new Date(log.created_at).toLocaleString() : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -99,7 +99,7 @@ const SocialMediaLinkManagement = () => {
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800 mb-8">
           <h2 className="text-xl font-bold text-yellow-400 mb-4">{editing ? 'Edit Link' : 'New Link'}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Platform</label>
                 <select name="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value, icon_class: PLATFORM_ICONS[e.target.value] || formData.icon_class})} className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white">

@@ -100,7 +100,7 @@ const ProjectManagement = () => {
             <label className="block text-sm text-gray-400 mb-1">Title *</label>
             <input type="text" name="title" value={formData.title} onChange={handleChange} required className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-1">Slug *</label>
               <input type="text" name="slug" value={formData.slug} onChange={handleChange} required className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white" />

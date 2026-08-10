@@ -39,29 +39,31 @@ const LoginHistory = () => {
         <span className="text-gray-400">{totalCount} total logins</span>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left p-3 text-gray-400">ID</th>
-              <th className="text-left p-3 text-gray-400">User</th>
-              <th className="text-left p-3 text-gray-400">IP Address</th>
-              <th className="text-left p-3 text-gray-400">User Agent</th>
-              <th className="text-left p-3 text-gray-400">Login Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logins.map((login) => (
-              <tr key={login.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                <td className="p-3 text-gray-400">{login.id}</td>
-                <td className="p-3 text-white font-bold">{login.user?.full_name || login.user?.username || 'Unknown'}</td>
-                <td className="p-3 text-gray-400 font-mono text-xs">{login.ip_address || '-'}</td>
-                <td className="p-3 text-gray-500 text-xs max-w-xs truncate">{login.device_info || '-'}</td>
-                <td className="p-3 text-gray-400 text-xs">{login.created_at ? new Date(login.created_at).toLocaleString() : '—'}</td>
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
+          <table className="w-full text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">ID</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">User</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">IP Address</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">User Agent</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Login Time</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {logins.map((login) => (
+                <tr key={login.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{login.id}</td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">{login.user?.full_name || login.user?.username || 'Unknown'}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap font-mono">{login.ip_address || '-'}</td>
+                  <td className="p-2 sm:p-3 text-gray-500 text-xs sm:text-sm max-w-xs truncate">{login.device_info || '-'}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{login.created_at ? new Date(login.created_at).toLocaleString() : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {logins.length === 0 && (

@@ -160,47 +160,49 @@ const AdminEvents = () => {
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left p-3 text-gray-400">ID</th>
-              <th className="text-left p-3 text-gray-400">Name</th>
-              <th className="text-left p-3 text-gray-400">Type</th>
-              <th className="text-left p-3 text-gray-400">Date</th>
-              <th className="text-left p-3 text-gray-400">Location</th>
-              <th className="text-left p-3 text-gray-400">Featured</th>
-              <th className="text-left p-3 text-gray-400">Status</th>
-              <th className="text-left p-3 text-gray-400">RSVP (👍/⭐/❌/Total)</th>
-              <th className="text-left p-3 text-gray-400">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((event) => (
-              <tr key={event.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                <td className="p-3 text-gray-400">{event.id}</td>
-                <td className="p-3 text-white font-bold">{event.name}</td>
-                <td className="p-3 text-gray-400">{event.event_type}</td>
-                <td className="p-3 text-gray-400 text-xs">{event.event_date ? new Date(event.event_date).toLocaleString() : '—'}</td>
-                <td className="p-3 text-gray-400">{event.location}</td>
-                <td className="p-3">{event.is_featured ? '✅' : '—'}</td>
-                <td className="p-3">{event.is_past ? <span className="text-gray-400">Past</span> : <span className="text-green-400">Upcoming</span>}</td>
-                <td className="p-3 text-gray-400 text-xs">
-                  {(() => {
-                    const c = responseCounts[event.id] || { going: 0, interested: 0, not_going: 0, total: 0 };
-                    return `${c.going}/${c.interested}/${c.not_going}/${c.total}`;
-                  })()}
-                </td>
-                <td className="p-3">
-                  <div className="flex gap-2">
-                    <button onClick={() => openEdit(event)} className="text-blue-400 hover:text-blue-300 text-xs font-bold">Edit</button>
-                    <button onClick={() => handleDelete(event.id)} className="text-red-400 hover:text-red-300 text-xs font-bold">Delete</button>
-                  </div>
-                </td>
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">ID</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Name</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Type</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Date</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Location</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Featured</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Status</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">RSVP</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {events.map((event) => (
+                <tr key={event.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{event.id}</td>
+                  <td className="p-2 sm:p-3 text-white font-bold text-xs sm:text-sm whitespace-nowrap">{event.name}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{event.event_type}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs whitespace-nowrap">{event.event_date ? new Date(event.event_date).toLocaleString() : '—'}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{event.location}</td>
+                  <td className="p-2 sm:p-3 whitespace-nowrap">{event.is_featured ? <span className="text-green-400 text-xs">✅</span> : <span className="text-gray-500 text-xs">—</span>}</td>
+                  <td className="p-2 sm:p-3 whitespace-nowrap">{event.is_past ? <span className="text-gray-400 text-xs">Past</span> : <span className="text-green-400 text-xs">Upcoming</span>}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs whitespace-nowrap">
+                    {(() => {
+                      const c = responseCounts[event.id] || { going: 0, interested: 0, not_going: 0, total: 0 };
+                      return `${c.going}/${c.interested}/${c.not_going}/${c.total}`;
+                    })()}
+                  </td>
+                  <td className="p-2 sm:p-3">
+                    <div className="flex gap-1.5 sm:gap-2">
+                      <button onClick={() => openEdit(event)} className="text-blue-400 hover:text-blue-300 text-[10px] sm:text-xs font-bold min-h-[32px] sm:min-h-[36px] px-1.5 sm:px-2 py-1 rounded hover:bg-blue-500/10 transition-colors">Edit</button>
+                      <button onClick={() => handleDelete(event.id)} className="text-red-400 hover:text-red-300 text-[10px] sm:text-xs font-bold min-h-[32px] sm:min-h-[36px] px-1.5 sm:px-2 py-1 rounded hover:bg-red-500/10 transition-colors">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {events.length === 0 && !loading && (

@@ -87,7 +87,7 @@ const ExecutiveLeaderManagement = () => {
       <div className="bg-gray-900 p-6 rounded-xl border border-gray-800 mb-8">
         <h2 className="text-xl font-bold text-yellow-400 mb-4">{editing ? 'Edit Leader' : 'New Leader'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-1">Name *</label>
               <input type="text" name="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white" />
@@ -101,7 +101,7 @@ const ExecutiveLeaderManagement = () => {
             <label className="block text-sm text-gray-400 mb-1">Bio</label>
             <textarea name="bio" value={formData.bio} onChange={(e) => setFormData({...formData, bio: e.target.value})} rows="3" className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-1">Years in Office</label>
               <input type="text" name="years_in_office" value={formData.years_in_office} onChange={(e) => setFormData({...formData, years_in_office: e.target.value})} className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white" />

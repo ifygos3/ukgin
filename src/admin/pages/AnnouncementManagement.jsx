@@ -111,38 +111,40 @@ const AnnouncementManagement = () => {
         </form>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left p-3 text-gray-400">ID</th>
-              <th className="text-left p-3 text-gray-400">Title</th>
-              <th className="text-left p-3 text-gray-400">Message</th>
-              <th className="text-left p-3 text-gray-400">Status</th>
-              <th className="text-left p-3 text-gray-400">Author</th>
-              <th className="text-left p-3 text-gray-400">Date</th>
-              <th className="text-left p-3 text-gray-400">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {announcements.map((ann) => (
-              <tr key={ann.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                <td className="p-3 text-gray-400">{ann.id}</td>
-                <td className="p-3 text-white font-bold">{ann.title}</td>
-                <td className="p-3 text-gray-400 max-w-xs truncate">{ann.message}</td>
-                <td className="p-3">{ann.is_active ? <span className="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs">Active</span> : <span className="bg-gray-500/20 text-gray-300 px-2 py-1 rounded text-xs">Inactive</span>}</td>
-                <td className="p-3 text-gray-400 text-xs">{ann.author_name || 'System'}</td>
-                <td className="p-3 text-gray-400 text-xs">{new Date(ann.created_at).toLocaleDateString()}</td>
-                <td className="p-3">
-                  <div className="flex gap-2">
-                    <button onClick={() => openEdit(ann)} className="text-blue-400 hover:text-blue-300 text-xs font-bold">Edit</button>
-                    <button onClick={() => handleDelete(ann.id)} className="text-red-400 hover:text-red-300 text-xs font-bold">Delete</button>
-                  </div>
-                </td>
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
+          <table className="w-full text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">ID</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Title</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Message</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Status</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Author</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Date</th>
+                <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {announcements.map((ann) => (
+                <tr key={ann.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{ann.id}</td>
+                  <td className="p-2 sm:p-3 text-white font-bold text-xs sm:text-sm whitespace-nowrap">{ann.title}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm max-w-xs truncate">{ann.message}</td>
+                  <td className="p-2 sm:p-3 whitespace-nowrap">{ann.is_active ? <span className="bg-green-500/20 text-green-300 px-1.5 py-0.5 rounded text-[10px] sm:text-xs">Active</span> : <span className="bg-gray-500/20 text-gray-300 px-1.5 py-0.5 rounded text-[10px] sm:text-xs">Inactive</span>}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{ann.author_name || 'System'}</td>
+                  <td className="p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">{new Date(ann.created_at).toLocaleDateString()}</td>
+                  <td className="p-2 sm:p-3">
+                    <div className="flex gap-1.5 sm:gap-2">
+                      <button onClick={() => openEdit(ann)} className="text-blue-400 hover:text-blue-300 text-[10px] sm:text-xs font-bold min-h-[32px] sm:min-h-[36px] px-1.5 sm:px-2 py-1 rounded hover:bg-blue-500/10 transition-colors">Edit</button>
+                      <button onClick={() => handleDelete(ann.id)} className="text-red-400 hover:text-red-300 text-[10px] sm:text-xs font-bold min-h-[32px] sm:min-h-[36px] px-1.5 sm:px-2 py-1 rounded hover:bg-red-500/10 transition-colors">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {announcements.length === 0 && !loading && (
