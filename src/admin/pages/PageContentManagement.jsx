@@ -15,13 +15,14 @@ const PAGE_TYPES = [
   { value: 'privacy_policy', label: 'Privacy Policy' },
   { value: 'terms_conditions', label: 'Terms & Conditions' },
   { value: 'cookie_policy', label: 'Cookie Policy' },
+  { value: 'mission_vision', label: 'Mission & Vision' },
 ];
 
 const PageContentManagement = () => {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingPage, setEditingPage] = useState(null);
-  const [formData, setFormData] = useState({ slug: '', page_type: '', title: '', content: '', is_published: true });
+  const [formData, setFormData] = useState({ slug: '', page_type: '', title: '', meta_title: '', meta_description: '', content: '', is_published: true });
   const [saving, setSaving] = useState(false);
   const token = localStorage.getItem('access_token');
   const { showNotification } = useNotification();
@@ -45,7 +46,7 @@ const PageContentManagement = () => {
 
   const openCreate = () => {
     setEditingPage(null);
-    setFormData({ slug: '', page_type: '', title: '', content: '', is_published: true });
+    setFormData({ slug: '', page_type: '', title: '', meta_title: '', meta_description: '', content: '', is_published: true });
   };
 
   const openEdit = (page) => {
@@ -54,6 +55,8 @@ const PageContentManagement = () => {
       slug: page.slug || '',
       page_type: page.page_type || '',
       title: page.title || '',
+      meta_title: page.meta_title || '',
+      meta_description: page.meta_description || '',
       content: page.content || '',
       is_published: page.is_published || false,
     });
@@ -61,7 +64,7 @@ const PageContentManagement = () => {
 
   const closeForm = () => {
     setEditingPage(null);
-    setFormData({ slug: '', page_type: '', title: '', content: '', is_published: true });
+    setFormData({ slug: '', page_type: '', title: '', meta_title: '', meta_description: '', content: '', is_published: true });
   };
 
   const handleSubmit = async (e) => {
@@ -109,8 +112,8 @@ const PageContentManagement = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400">Page Content</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-yellow-400">Page Content</h1>
         <button onClick={openCreate} className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-500 transition-colors">
           + New Page
         </button>
@@ -127,6 +130,16 @@ const PageContentManagement = () => {
             <div>
               <label className="block text-sm text-gray-400 mb-1">Slug *</label>
               <input type="text" name="slug" value={formData.slug} onChange={handleChange} required className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Meta Title</label>
+              <input type="text" name="meta_title" value={formData.meta_title || ''} onChange={handleChange} className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Meta Description</label>
+              <input type="text" name="meta_description" value={formData.meta_description || ''} onChange={handleChange} className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white" />
             </div>
           </div>
           <div>
@@ -155,9 +168,9 @@ const PageContentManagement = () => {
         </form>
       </div>
 
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
-        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
-          <table className="w-full text-xs sm:text-sm border-collapse">
+      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+        <div className="min-w-[720px] w-full">
+          <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
             <thead>
               <tr className="border-b border-gray-800">
                 <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">ID</th>

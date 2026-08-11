@@ -80,8 +80,8 @@ const ExecutiveLeaderManagement = () => {
 
   return (
     <div className="min-h-screen pt-4 px-4 sm:px-6 md:px-8 text-white">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400">Executive Leaders</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-yellow-400">Executive Leaders</h1>
         <button onClick={openCreate} className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-500 transition-colors">+ New Leader</button>
       </div>
       <div className="bg-gray-900 p-6 rounded-xl border border-gray-800 mb-8">

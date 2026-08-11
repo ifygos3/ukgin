@@ -88,8 +88,8 @@ const SocialMediaLinkManagement = () => {
 
   return (
     <div className="min-h-screen pt-4 px-4 sm:px-6 md:px-8 text-white">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400">Social Media Links</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-yellow-400">Social Media Links</h1>
         <div className="flex gap-3">
           <button onClick={fetchLinks} className="bg-gray-700 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-gray-600 transition-colors">Refresh</button>
           <button onClick={openCreate} className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-500 transition-colors">+ New Link</button>

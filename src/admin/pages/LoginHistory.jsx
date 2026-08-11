@@ -34,14 +34,14 @@ const LoginHistory = () => {
 
   return (
     <div className="min-h-screen pt-4 px-4 sm:px-6 md:px-8 text-white">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400">Recent Logins</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-yellow-400">Recent Logins</h1>
         <span className="text-gray-400">{totalCount} total logins</span>
       </div>
 
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
-        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
-          <table className="w-full text-xs sm:text-sm border-collapse">
+      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+        <div className="min-w-[720px] w-full">
+          <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
             <thead>
               <tr className="border-b border-gray-800">
                 <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">ID</th>

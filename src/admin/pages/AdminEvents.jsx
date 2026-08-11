@@ -107,8 +107,8 @@ const AdminEvents = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400">Event Management</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-yellow-400">Event Management</h1>
         <button onClick={openCreate} className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-500 transition-colors">
           + Add Event
         </button>
@@ -160,9 +160,20 @@ const AdminEvents = () => {
         </div>
       )}
 
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
-        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
-          <table className="w-full text-sm border-collapse">
+      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+        <div className="min-w-[720px] w-full">
+          <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
+            <colgroup>
+              <col style={{width: '6%'}} />
+              <col style={{width: '16%'}} />
+              <col style={{width: '10%'}} />
+              <col style={{width: '14%'}} />
+              <col style={{width: '12%'}} />
+              <col style={{width: '8%'}} />
+              <col style={{width: '8%'}} />
+              <col style={{width: '10%'}} />
+              <col style={{width: '16%'}} />
+            </colgroup>
             <thead>
               <tr className="border-b border-gray-800">
                 <th className="text-left p-2 sm:p-3 text-gray-400 text-xs sm:text-sm whitespace-nowrap">ID</th>

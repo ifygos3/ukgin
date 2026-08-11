@@ -148,6 +148,7 @@ const UserManagement = () => {
       current_employee: user.current_employee || '',
       about_user: user.about_user || '',
       signature_data: user.signature_data || '',
+      signature_url: user.signature_url || '',
       role: user.role || 'member',
       kyc_status: user.kyc_status || 'pending',
     });
@@ -233,9 +234,19 @@ const UserManagement = () => {
       </form>
 
       {/* Table wrapper - always visible, scrolls horizontally on small screens */}
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
-        <div className="inline-block min-w-[520px] sm:min-w-0 align-middle">
-          <table className="w-full text-xs sm:text-sm border-collapse">
+      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+        <div className="min-w-[720px] w-full">
+          <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
+            <colgroup>
+              <col style={{width: '8%'}} />
+              <col style={{width: '18%'}} />
+              <col style={{width: '22%'}} />
+              <col style={{width: '12%'}} />
+              <col style={{width: '10%'}} />
+              <col style={{width: '10%'}} />
+              <col style={{width: '8%'}} />
+              <col style={{width: '12%'}} />
+            </colgroup>
             <thead>
               <tr className="border-b border-gray-800">
                 <th className="text-left p-1.5 sm:p-3 text-gray-400 whitespace-nowrap">ID</th>
@@ -264,7 +275,13 @@ const UserManagement = () => {
                   </td>
                   <td className="p-1.5 sm:p-3 whitespace-nowrap">{getStatusBadge(user)}</td>
                   <td className="p-1.5 sm:p-3 whitespace-nowrap"><span className={`px-1 py-0.5 rounded text-[9px] sm:text-xs ${user.kyc_status === 'approved' ? 'bg-green-500/20 text-green-300' : user.kyc_status === 'rejected' ? 'bg-red-500/20 text-red-300' : 'bg-yellow-500/20 text-yellow-300'}`}>{user.kyc_status}</span></td>
-                  <td className="p-1.5 sm:p-3 whitespace-nowrap">{user.signature_data ? <span className="text-green-400 text-[9px] sm:text-xs">✓</span> : <span className="text-gray-600 text-[9px] sm:text-xs">—</span>}</td>
+                  <td className="p-1.5 sm:p-3 whitespace-nowrap">
+                    {user.signature_url ? (
+                      <a href={user.signature_url} target="_blank" rel="noopener" className="text-green-400 hover:text-green-300 text-[9px] sm:text-xs font-bold">View</a>
+                    ) : (
+                      <span className="text-gray-600 text-[9px] sm:text-xs">No signature</span>
+                    )}
+                  </td>
                   <td className="p-1.5 sm:p-3">
                     <div className="flex flex-wrap gap-1">
                       <button onClick={() => handleAction(user.id, user.is_suspended ? 'activate' : 'suspend')} className={`text-[9px] sm:text-xs font-bold px-1.5 sm:px-2 py-1 rounded min-h-[28px] sm:min-h-[32px] ${user.is_suspended ? 'bg-green-500/10 text-green-400' : 'bg-orange-500/10 text-orange-400'}`}>
@@ -393,8 +410,23 @@ const UserManagement = () => {
                 <textarea value={editForm.about_user || ''} onChange={(e) => setEditForm({ ...editForm, about_user: e.target.value })} rows='3' className='w-full bg-black p-2.5 rounded-xl border border-gray-700 text-white text-sm' />
               </div>
               <div className='sm:col-span-2'>
-                <label className='block text-xs sm:text-sm text-gray-400 mb-1'>Signature Data</label>
-                <textarea value={editForm.signature_data || ''} onChange={(e) => setEditForm({ ...editForm, signature_data: e.target.value })} rows='3' className='w-full bg-black p-2.5 rounded-xl border border-gray-700 text-white text-sm' />
+                <label className='block text-xs sm:text-sm text-gray-400 mb-1'>Signature</label>
+                {editForm.signature_url && (
+                  <div className='mb-2'>
+                    <img src={editForm.signature_url} alt='Signature preview' className='max-h-24 rounded border border-gray-700 bg-white' />
+                    <a href={editForm.signature_url} target='_blank' rel='noopener' className='text-blue-400 text-xs hover:text-blue-300 ml-2'>Open full size</a>
+                  </div>
+                )}
+                <input type='file' accept='image/*' onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setEditForm({ ...editForm, signature_data: reader.result, signature_url: reader.result });
+                  };
+                  reader.readAsDataURL(file);
+                }} className='w-full bg-black p-2.5 rounded-xl border border-gray-700 text-white text-sm' />
+                <p className='text-gray-500 text-xs mt-1'>Upload a new signature image (PNG, JPG).</p>
               </div>
               <div>
                 <label className='block text-xs sm:text-sm text-gray-400 mb-1'>Role</label>

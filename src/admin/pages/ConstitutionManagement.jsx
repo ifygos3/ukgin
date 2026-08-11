@@ -57,11 +57,11 @@ const ConstitutionManagement = () => {
       if (formData.file) data.append('file', formData.file);
       if (editing) {
         await axios.patch(`${API_BASE_URL}/users/constitutions/${editing.id}/`, data, {
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
+          headers: { Authorization: `Bearer ${token}` },
         });
       } else {
         await axios.post(`${API_BASE_URL}/users/constitutions/`, data, {
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
+          headers: { Authorization: `Bearer ${token}` },
         });
       }
       fetchConstitutions();

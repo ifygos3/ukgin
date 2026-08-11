@@ -37,10 +37,10 @@ const Login = ({ showNotification }) => {
     setResendingVerification(true);
     setResendMessage('');
     try {
-      const emailToUse = identifier.includes('@') ? identifier : `${identifier}@example.com`;
+      const emailToUse = identifier.includes('@') ? identifier : undefined;
       await axios.post(
         `${API_BASE_URL}/users/email-verify/resend/`,
-        { email: emailToUse, frontend_url: window.location.origin },
+        { identifier: !emailToUse ? identifier : undefined, email: emailToUse, frontend_url: window.location.origin },
         { headers: { 'Content-Type': 'application/json' } }
       );
       setResendMessage('Verification email sent! Please check your inbox.');

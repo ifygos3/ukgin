@@ -44,6 +44,7 @@ const Dashboard = lazy(() => import('./admin/pages/Dashboard'));
 const UserManagement = lazy(() => import('./admin/pages/UserManagement'));
 const DepositManagement = lazy(() => import('./admin/pages/DepositManagement'));
 const WithdrawalManagement = lazy(() => import('./admin/pages/WithdrawalManagement'));
+const DonationManagement = lazy(() => import('./admin/pages/DonationManagement'));
 const KYCVerification = lazy(() => import('./admin/pages/KYCVerification'));
 const NotificationManagement = lazy(() => import('./admin/pages/NotificationManagement'));
 const SupportTicketManagement = lazy(() => import('./admin/pages/SupportTicketManagement'));
@@ -140,7 +141,7 @@ const AppContent = () => {
             <Route path="users" element={<UserManagement />} />
             <Route path="deposits" element={<DepositManagement />} />
             <Route path="withdrawals" element={<WithdrawalManagement />} />
-            <Route path="donations" element={<Donation />} />
+            <Route path="donations" element={<DonationManagement />} />
             <Route path="kyc" element={<KYCVerification />} />
             <Route path="wallets" element={<WalletManagement />} />
             <Route path="notifications" element={<NotificationManagement />} />

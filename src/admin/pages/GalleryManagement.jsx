@@ -215,8 +215,8 @@ const GalleryManagement = () => {
           </div>
         </div>
       )}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400">Gallery Management </h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-yellow-400">Gallery Management </h1>
         <>
           <label className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl font-bold cursor-pointer hover:bg-yellow-500 transition">
             + Add Image / Video

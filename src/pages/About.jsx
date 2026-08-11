@@ -1,15 +1,58 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { Skeleton } from '../components/ui';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const About = () => {
-  const leadership = [
+  const [pageContent, setPageContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAbout = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/users/public/pages/about/`);
+        setPageContent(res.data);
+      } catch {
+        setPageContent(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAbout();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className='min-h-screen pt-16 sm:pt-18 md:pt-20 px-4 sm:px-6 md:px-8 text-white'>
+        <div className='max-w-7xl mx-auto'>
+          <h1 className='text-5xl md:text-7xl font-extrabold text-yellow-400 mb-8'>About UKGIN</h1>
+          <div className='grid md:grid-cols-2 gap-8'>
+            {[1, 2].map(i => (
+              <div key={i} className='bg-gray-900 p-8 rounded-2xl border border-gray-800 space-y-4'>
+                <Skeleton className='w-16 h-16 mx-auto' />
+                <Skeleton variant='text' className='w-1/2 mx-auto' />
+                <Skeleton variant='text' className='w-full' />
+                <Skeleton className='w-32 h-12 mx-auto' />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const content = pageContent?.content || '';
+
+  const defaultLeadership = [
     { name: 'Queen Pat Ukachi Levison Ekeogu', position: 'President General/Founder', bio: 'Visionary leader with 20+ years of community service and advocacy for Igbo unity worldwide.' },
     { name: 'Ofochi Benjamin Atagana (Esq.)', position: 'National President', bio: 'Legal expert and community advocate with extensive experience in Igbo diaspora affairs.' },
     { name: 'Asiegbu Uloma', position: 'Vice National President', bio: 'Dedicated leader focused on youth empowerment and community development initiatives.' },
     { name: 'Mozo Nonso', position: 'Board Chairman', bio: 'Seasoned administrator and financial expert with a strong commitment to organizational governance and growth.' },
   ];
 
-  const branches = [
+  const defaultBranches = [
     { state: 'Lagos', coordinator: 'Chidi Okafor', members: '150+' },
     { state: 'Anambra', coordinator: 'Ngozi Eze', members: '120+' },
     { state: 'Rivers', coordinator: 'Emeka Nwosu', members: '80+' },
@@ -19,7 +62,15 @@ const About = () => {
   return (
     <div className='min-h-screen pt-16 sm:pt-18 md:pt-20 px-4 sm:px-6 md:px-8'>
       <div className='max-w-7xl mx-auto'>
-        <h1 className='text-5xl md:text-7xl font-extrabold text-yellow-400 mb-8'>About UKGIN</h1>
+        <h1 className='text-5xl md:text-7xl font-extrabold text-yellow-400 mb-8'>{pageContent?.title || 'About UKGIN'}</h1>
+
+        {content && (
+          <section className='mb-20'>
+            <div className='bg-gray-900/80 backdrop-blur-sm p-8 md:p-10 rounded-3xl border border-yellow-400/20'>
+              <div className='prose prose-invert prose-gray max-w-none text-gray-200 leading-8 text-lg' dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} />
+            </div>
+          </section>
+        )}
 
         <section className='mb-20'>
           <h2 className='text-4xl md:text-5xl font-extrabold text-yellow-400 mb-6'>Our Story</h2>
@@ -82,7 +133,7 @@ const About = () => {
         <section className='mb-20'>
           <h2 className='text-4xl md:text-5xl font-extrabold text-yellow-400 mb-8'>Executive Leadership</h2>
           <div className='grid sm:grid-cols-2 lg:grid-cols-4 gap-7'>
-            {leadership.map((l, i) => (
+            {defaultLeadership.map((l, i) => (
               <div key={i} className='bg-gray-900/80 backdrop-blur-sm p-7 rounded-3xl border border-gray-800 text-center hover:border-yellow-400/40 transition-all duration-300 hover:scale-[1.02]'>
                 <div className='w-24 h-24 bg-gray-700 rounded-full mx-auto mb-5 flex items-center justify-center text-4xl'>👤</div>
                 <h3 className='text-white font-bold text-xl'>{l.name}</h3>
@@ -120,7 +171,7 @@ const About = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {branches.map((b, i) => (
+                  {defaultBranches.map((b, i) => (
                     <tr key={i} className='border-b border-gray-800/50 hover:bg-gray-800/30'>
                       <td className='p-4 text-white font-bold text-lg'>{b.state}</td>
                       <td className='p-4 text-gray-300 text-lg'>{b.coordinator}</td>

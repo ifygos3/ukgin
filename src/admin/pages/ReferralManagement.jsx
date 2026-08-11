@@ -24,10 +24,11 @@ const ReferralManagement = () => {
     <div>
       <h1 className="text-3xl font-bold text-yellow-400 mb-6">Referral Management</h1>
       {loading ? <div className="text-gray-400">Loading...</div> : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-800">
+        <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+          <div className="min-w-[720px] w-full">
+            <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
+              <thead>
+                <tr className="border-b border-gray-800">
                 <th className="text-left p-3 text-gray-400">Referrer</th>
                 <th className="text-left p-3 text-gray-400">Referred User</th>
                 <th className="text-left p-3 text-gray-400">Reward</th>
@@ -46,7 +47,8 @@ const ReferralManagement = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
     </div>

@@ -61,17 +61,26 @@ const Signup = ({ showNotification }) => {
       first_name: firstName,
       last_name: lastName,
       confirmPassword: formData.confirmPassword || undefined,
+      frontend_url: window.location.origin,
     };
 
     try {
-      await axios.post(
+      const res = await axios.post(
         `${API_BASE_URL}/users/create_user/`,
         submitData,
         { headers: { 'Content-Type': 'application/json' } }
       );
 
-      setMessage({ type: 'success', text: 'Registration successful! Please check your email (and spam/junk folder) to verify your account.' });
-      showNotification?.('Signup successful. Please check your inbox and spam/junk folder for the verification email.', 'success');
+      const emailSent = res.data?.email_verification_sent !== false;
+      const emailMessage = res.data?.email_verification_message || 'Please check your email (and spam/junk folder) to verify your account.';
+
+      if (emailSent) {
+        setMessage({ type: 'success', text: `Registration successful! ${emailMessage}` });
+        showNotification?.(`Signup successful. ${emailMessage}`, 'success');
+      } else {
+        setMessage({ type: 'warning', text: `Account created, but ${emailMessage}` });
+        showNotification?.(`Account created. ${emailMessage}`, 'warning');
+      }
 
       setFormData({
         full_name: '', email: '', address: '', phone_number: '',

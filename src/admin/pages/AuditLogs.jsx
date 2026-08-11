@@ -64,9 +64,9 @@ const AuditLogs = () => {
           <option value="wallet_unfreeze">Wallet Unfrozen</option>
         </select>
       </div>
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
-        <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
-          <table className="w-full text-xs sm:text-sm border-collapse">
+      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+        <div className="min-w-[720px] w-full">
+          <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
             <thead>
               <tr className="border-b border-gray-800">
                 <th className="text-left p-2 sm:p-3 text-gray-400 whitespace-nowrap">Admin</th>

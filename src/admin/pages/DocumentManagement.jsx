@@ -73,8 +73,8 @@ const DocumentManagement = () => {
 
   return (
     <div className="min-h-screen pt-4 px-4 sm:px-6 md:px-8 text-white">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400">Document Downloads</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-yellow-400">Document Downloads</h1>
         <span className="text-gray-400">{documents.length} documents</span>
       </div>
 

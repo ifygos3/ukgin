@@ -249,7 +249,7 @@ const AdminLayout = () => {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 w-full">
-          <div className="w-full max-w-full overflow-x-hidden">
+          <div className="w-full max-w-full">
             <Outlet />
           </div>
         </main>

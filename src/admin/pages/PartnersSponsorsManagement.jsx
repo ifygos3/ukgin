@@ -88,12 +88,12 @@ const PartnersSponsorsManagement = () => {
 
       if (editingItem) {
         await axios.patch(`${API_BASE_URL}/users/${endpoint}/${editingItem.id}/`, payload, {
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
+          headers: { Authorization: `Bearer ${token}` },
         });
         showNotification(`${activeTab === 'partners' ? 'Partner' : 'Sponsor'} updated successfully.`, 'success');
       } else {
         await axios.post(`${API_BASE_URL}/users/${endpoint}/`, payload, {
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
+          headers: { Authorization: `Bearer ${token}` },
         });
         showNotification(`${activeTab === 'partners' ? 'Partner' : 'Sponsor'} created successfully.`, 'success');
       }
@@ -142,8 +142,8 @@ const PartnersSponsorsManagement = () => {
 
   return (
     <div className="min-h-screen pt-4 px-4 sm:px-6 md:px-8 text-white">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400">Partners & Sponsors</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-yellow-400">Partners & Sponsors</h1>
         <button onClick={openCreate} className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-500 transition-colors">+ Add New</button>
       </div>
 
