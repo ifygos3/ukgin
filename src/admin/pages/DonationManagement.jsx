@@ -110,7 +110,7 @@ const DonationManagement = () => {
         ))}
       </div>
 
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
+      <div className="-mx-3 sm:mx-0 overflow-x-auto overscroll-x-contain overscroll-y-contain" style={{WebkitOverflowScrolling: 'touch'}}>
         <div className="inline-block min-w-[640px] sm:min-w-0 align-middle">
           <table className="w-full text-xs sm:text-sm border-collapse">
             <thead>

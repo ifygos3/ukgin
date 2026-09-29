@@ -17,8 +17,22 @@ const GalleryMedia = ({ item }) => {
   const [failed, setFailed] = useState(false);
   const rawUrl = item?.media_url || item?.image_url || item?.image || item?.url || item?.secure_url || item?.src;
   const mediaUrl = resolveMediaUrl(rawUrl);
-  const mediaType = item?.media_type === 'video' || /\.(mp4|mov|webm|ogg|ogv|avi|mkv)$/i.test(mediaUrl) ? 'video' : 'image';
-  const videoType = mediaType === 'video' ? (mediaUrl.endsWith('.webm') ? 'video/webm' : mediaUrl.endsWith('.ogg') || mediaUrl.endsWith('.ogv') ? 'video/ogg' : 'video/mp4') : null;
+  const youtubeMatch = mediaUrl && /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/.exec(mediaUrl);
+  const youtubeId = youtubeMatch ? youtubeMatch[1] : null;
+  const mediaType = youtubeId ? 'video' : (item?.media_type === 'video' || /\.(mp4|mov|webm|ogg|ogv|avi|mkv)$/i.test(mediaUrl) ? 'video' : 'image');
+  const videoType = mediaType === 'video' && !youtubeId ? (mediaUrl.endsWith('.webm') ? 'video/webm' : mediaUrl.endsWith('.ogg') || mediaUrl.endsWith('.ogv') ? 'video/ogg' : 'video/mp4') : null;
+
+  if (youtubeId) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${youtubeId}`}
+        title={item?.title || 'Gallery video'}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="w-full h-48 bg-black"
+      />
+    );
+  }
 
   if (!mediaUrl || failed) {
     return <div className="w-full h-48 bg-gray-800 flex items-center justify-center text-4xl">🖼️</div>;
@@ -99,7 +113,10 @@ const GalleryManagement = () => {
     finally { setLoading(false); }
   }, [token]);
 
-  useEffect(() => { fetchImages(); }, [fetchImages]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchImages();
+  }, [fetchImages]);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];

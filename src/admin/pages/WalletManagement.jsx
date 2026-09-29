@@ -79,7 +79,7 @@ const WalletManagement = () => {
   return (
     <div>
       <h1 className="text-3xl font-bold text-yellow-400 mb-6">Wallet Management</h1>
-      <div className="w-full overflow-x-auto overscroll-x-contain mb-8" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+      <div className="w-full -mx-3 sm:mx-0 overflow-x-auto overscroll-x-contain overscroll-y-contain mb-8" style={{WebkitOverflowScrolling: 'touch'}}>
         <div className="min-w-[720px] w-full">
           <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
             <thead>
@@ -124,7 +124,7 @@ const WalletManagement = () => {
       {showTransactions && (
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
           <h2 className="text-xl font-bold text-yellow-400 mb-4">Wallet Transactions</h2>
-      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+      <div className="w-full overflow-x-auto overscroll-x-contain overscroll-y-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
         <div className="min-w-[720px] w-full">
               <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
                 <thead>

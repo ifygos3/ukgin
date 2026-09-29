@@ -1,9 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton, StatCardSkeleton, CardSkeleton } from '../../components/ui';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
+const StatCard = ({ label, value, link, color = 'text-blue-400', navigate }) => (
+  <div onClick={() => navigate(link)} className="bg-gray-900 aspect-square p-3 sm:p-4 rounded-xl border border-gray-800 transition-all duration-300 hover:scale-[1.03] hover:border-yellow-400 hover:bg-gray-800 flex flex-col items-center justify-center text-center">
+    <p className="text-gray-300 text-sm sm:text-base font-bold mb-1 sm:mb-2 truncate">{label}</p>
+    <p className={`text-2xl sm:text-3xl md:text-4xl font-extrabold ${color}`}>{value}</p>
+    <p className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-2 hidden sm:block font-semibold">View details →</p>
+  </div>
+);
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -15,7 +23,7 @@ const Dashboard = () => {
   const [rsvpResponses, setRsvpResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  const [lastUpdated, setLastUpdated] = useState(null);
   const navigate = useNavigate();
 
   const fetchData = async () => {
@@ -43,6 +51,8 @@ const Dashboard = () => {
       setProfitData(profitRes.data);
       setUserActivity(activityRes.data);
       setRsvpResponses(rsvpRes?.data?.results || rsvpRes?.data || []);
+      setLastUpdated(new Date());
+      setError('');
     } catch (err) {
       const message = err?.response?.data?.detail || err?.message || 'Failed to load dashboard data';
       setError(message);
@@ -52,7 +62,10 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -105,45 +118,42 @@ const Dashboard = () => {
     total_platform_balance: '/admin/wallets',
   };
 
-  const StatCard = ({ label, value, link, color = 'text-blue-400' }) => (
-    <div onClick={() => navigate(link)} className="bg-gray-900 aspect-square p-3 sm:p-4 rounded-xl border border-gray-800 transition-all duration-300 hover:scale-[1.03] hover:border-yellow-400 hover:bg-gray-800 flex flex-col items-center justify-center text-center">
-      <p className="text-gray-300 text-sm sm:text-base font-bold mb-1 sm:mb-2 truncate">{label}</p>
-      <p className={`text-2xl sm:text-3xl md:text-4xl font-extrabold ${color}`}>{value}</p>
-      <p className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-2 hidden sm:block font-semibold">View details →</p>
-    </div>
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-bold text-yellow-400">Dashboard Overview</h1>
-        <button onClick={() => window.location.reload()} className="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-700 transition-colors">Refresh</button>
+        <div className="flex flex-col">
+          <h1 className="text-2xl md:text-3xl font-bold text-yellow-400">Dashboard Overview</h1>
+          {lastUpdated && !loading && (
+            <span className="text-xs text-gray-500 font-medium mt-1">Last updated: {lastUpdated.toLocaleTimeString()}</span>
+          )}
+        </div>
+        <button onClick={fetchData} className="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-700 transition-colors">Refresh</button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        <StatCard label="Total Members" value={stats.total_users} link={statLinks.total_users} color="text-blue-400" />
-        <StatCard label="Active Members" value={stats.active_users} link={statLinks.active_users} color="text-green-400" />
-        <StatCard label="Pending Members" value={stats.pending_members || 0} link={statLinks.pending_members} color="text-orange-400" />
-        <StatCard label="KYC Pending" value={stats.pending_kyc} link={statLinks.pending_kyc} color="text-orange-400" />
-        <StatCard label="Total Donations" value={`$${stats.total_donations}`} link={statLinks.total_donations} color="text-yellow-400" />
-        <StatCard label="Revenue" value={`$${stats.monthly_revenue}`} link={statLinks.monthly_revenue} color="text-yellow-400" />
-        <StatCard label="Total Deposits" value={`$${stats.total_deposits}`} link={statLinks.total_deposits} color="text-blue-400" />
-        <StatCard label="Pending Deposits" value={`$${stats.pending_deposits}`} link={statLinks.pending_deposits} color="text-orange-400" />
-        <StatCard label="Approved Deposits" value={`$${stats.approved_deposits}`} link={statLinks.approved_deposits} color="text-green-400" />
-        <StatCard label="Events" value={stats.total_events || 0} link={statLinks.total_events} color="text-blue-400" />
-        <StatCard label="News Posts" value={stats.total_news || 0} link={statLinks.total_news} color="text-purple-400" />
-        <StatCard label="Projects" value={stats.total_projects || 0} link={statLinks.total_projects} color="text-green-400" />
-        <StatCard label="Gallery Items" value={stats.total_gallery || 0} link={statLinks.total_gallery} color="text-blue-400" />
-        <StatCard label="Downloads" value={stats.total_downloads || 0} link={statLinks.total_downloads} color="text-green-400" />
-        <StatCard label="Volunteers" value={stats.total_volunteers || 0} link={statLinks.total_volunteers} color="text-yellow-400" />
-        <StatCard label="Partners" value={stats.total_partners || 0} link={statLinks.total_partners} color="text-blue-400" />
-        <StatCard label="Sponsors" value={stats.total_sponsors || 0} link={statLinks.total_sponsors} color="text-yellow-400" />
-        <StatCard label="State Chapters" value={stats.total_states || 0} link={statLinks.total_states} color="text-purple-400" />
-        <StatCard label="LGA Chapters" value={stats.total_lgas || 0} link={statLinks.total_lgas} color="text-blue-400" />
-        <StatCard label="Notifications" value={stats.total_notifications || 0} link={statLinks.total_notifications} color="text-orange-400" />
-        <StatCard label="Reports" value={stats.total_reports || 0} link={statLinks.total_reports} color="text-green-400" />
-        <StatCard label="Recent Logins" value={stats.recent_logins || 0} link={statLinks.recent_logins} color="text-blue-400" />
-        <StatCard label="Platform Balance" value={`$${stats.total_platform_balance}`} link={statLinks.total_platform_balance} color="text-yellow-400" />
+        <StatCard label="Total Members" value={stats.total_users} link={statLinks.total_users} color="text-blue-400" navigate={navigate} />
+        <StatCard label="Active Members" value={stats.active_users} link={statLinks.active_users} color="text-green-400" navigate={navigate} />
+        <StatCard label="Pending Members" value={stats.pending_members || 0} link={statLinks.pending_members} color="text-orange-400" navigate={navigate} />
+        <StatCard label="KYC Pending" value={stats.pending_kyc} link={statLinks.pending_kyc} color="text-orange-400" navigate={navigate} />
+        <StatCard label="Total Donations" value={`$${stats.total_donations}`} link={statLinks.total_donations} color="text-yellow-400" navigate={navigate} />
+        <StatCard label="Revenue" value={`$${stats.monthly_revenue}`} link={statLinks.monthly_revenue} color="text-yellow-400" navigate={navigate} />
+        <StatCard label="Total Deposits" value={`$${stats.total_deposits}`} link={statLinks.total_deposits} color="text-blue-400" navigate={navigate} />
+        <StatCard label="Pending Deposits" value={`$${stats.pending_deposits}`} link={statLinks.pending_deposits} color="text-orange-400" navigate={navigate} />
+        <StatCard label="Approved Deposits" value={`$${stats.approved_deposits}`} link={statLinks.approved_deposits} color="text-green-400" navigate={navigate} />
+        <StatCard label="Events" value={stats.total_events || 0} link={statLinks.total_events} color="text-blue-400" navigate={navigate} />
+        <StatCard label="News Posts" value={stats.total_news || 0} link={statLinks.total_news} color="text-purple-400" navigate={navigate} />
+        <StatCard label="Projects" value={stats.total_projects || 0} link={statLinks.total_projects} color="text-green-400" navigate={navigate} />
+        <StatCard label="Gallery Items" value={stats.total_gallery || 0} link={statLinks.total_gallery} color="text-blue-400" navigate={navigate} />
+        <StatCard label="Downloads" value={stats.total_downloads || 0} link={statLinks.total_downloads} color="text-green-400" navigate={navigate} />
+        <StatCard label="Volunteers" value={stats.total_volunteers || 0} link={statLinks.total_volunteers} color="text-yellow-400" navigate={navigate} />
+        <StatCard label="Partners" value={stats.total_partners || 0} link={statLinks.total_partners} color="text-blue-400" navigate={navigate} />
+        <StatCard label="Sponsors" value={stats.total_sponsors || 0} link={statLinks.total_sponsors} color="text-yellow-400" navigate={navigate} />
+        <StatCard label="State Chapters" value={stats.total_states || 0} link={statLinks.total_states} color="text-purple-400" navigate={navigate} />
+        <StatCard label="LGA Chapters" value={stats.total_lgas || 0} link={statLinks.total_lgas} color="text-blue-400" navigate={navigate} />
+        <StatCard label="Notifications" value={stats.total_notifications || 0} link={statLinks.total_notifications} color="text-orange-400" navigate={navigate} />
+        <StatCard label="Reports" value={stats.total_reports || 0} link={statLinks.total_reports} color="text-green-400" navigate={navigate} />
+        <StatCard label="Recent Logins" value={stats.recent_logins || 0} link={statLinks.recent_logins} color="text-blue-400" navigate={navigate} />
+        <StatCard label="Platform Balance" value={`$${stats.total_platform_balance}`} link={statLinks.total_platform_balance} color="text-yellow-400" navigate={navigate} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

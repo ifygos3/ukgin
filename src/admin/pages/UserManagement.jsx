@@ -24,6 +24,9 @@ const UserManagement = () => {
   const [savingUser, setSavingUser] = useState(false);
   const [userResponses, setUserResponses] = useState([]);
   const [loadingResponses, setLoadingResponses] = useState(false);
+  const [viewingUser, setViewingUser] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
   const [error, setError] = useState('');
   const token = localStorage.getItem('access_token');
   const { showNotification } = useNotification();
@@ -47,7 +50,10 @@ const UserManagement = () => {
   }, [search, statusFilter, roleFilter, token]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers();
+    const interval = setInterval(fetchUsers, 30000);
+    return () => clearInterval(interval);
   }, [fetchUsers]);
 
   const handleSearch = (e) => {
@@ -121,6 +127,30 @@ const UserManagement = () => {
   const closeUserResponses = () => {
     setSelectedUser(null);
     setUserResponses([]);
+  };
+
+  const fetchUserDetails = async (user) => {
+    setLoadingDetails(true);
+    try {
+      const res = await axios.get(`${API_BASE_URL}/users/create_user/${user.id}/details/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserDetails(res.data.data);
+    } catch {
+      showNotification('Failed to load user details.', 'error');
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  const openUserDetails = async (user) => {
+    setViewingUser(user);
+    await fetchUserDetails(user);
+  };
+
+  const closeUserDetails = () => {
+    setViewingUser(null);
+    setUserDetails(null);
   };
 
   const openEditUser = (user) => {
@@ -234,7 +264,7 @@ const UserManagement = () => {
       </form>
 
       {/* Table wrapper - always visible, scrolls horizontally on small screens */}
-      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+      <div className="w-full -mx-3 sm:mx-0 overflow-x-auto overscroll-x-contain overscroll-y-contain" style={{WebkitOverflowScrolling: 'touch'}}>
         <div className="min-w-[720px] w-full">
           <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
             <colgroup>
@@ -263,7 +293,11 @@ const UserManagement = () => {
               {users.map((user) => (
                 <tr key={user.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
                   <td className="p-1.5 sm:p-3 text-gray-400 whitespace-nowrap">{user.id}</td>
-                  <td className="p-1.5 sm:p-3 whitespace-nowrap truncate max-w-[100px] sm:max-w-none">{user.full_name || `${user.first_name} ${user.last_name}`.trim() || user.username}</td>
+                  <td className="p-1.5 sm:p-3 whitespace-nowrap truncate max-w-[100px] sm:max-w-none">
+                    <button onClick={() => openUserDetails(user)} className="text-blue-400 hover:text-blue-300 text-[9px] sm:text-xs font-bold text-left">
+                      {user.full_name || `${user.first_name} ${user.last_name}`.trim() || user.username}
+                    </button>
+                  </td>
                   <td className="p-1.5 sm:p-3 text-gray-400 whitespace-nowrap truncate max-w-[120px] sm:max-w-none">{user.email}</td>
                   <td className="p-1.5 sm:p-3 whitespace-nowrap">
                     <div className="flex items-center gap-1">
@@ -472,7 +506,7 @@ const UserManagement = () => {
             ) : userResponses.length === 0 ? (
               <p className='text-gray-400 text-sm text-center py-4'>No event responses found.</p>
             ) : (
-              <div className='overflow-x-auto'>
+               <div className='-mx-3 sm:mx-0 overflow-x-auto overscroll-x-contain overscroll-y-contain' style={{WebkitOverflowScrolling: 'touch'}}>
                 <table className='w-full text-sm'>
                   <thead>
                     <tr className='border-b border-gray-800'>
@@ -492,6 +526,190 @@ const UserManagement = () => {
                   </tbody>
                 </table>
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {viewingUser && (
+        <div className='fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-3 sm:p-6' onClick={closeUserDetails}>
+          <div className='bg-gray-900 p-4 sm:p-6 rounded-2xl border border-gray-800 w-full max-w-3xl max-h-[90vh] overflow-y-auto' onClick={(e) => e.stopPropagation()}>
+            <div className='flex justify-between items-start mb-4'>
+              <div>
+                <h3 className='text-lg sm:text-xl font-bold text-yellow-400'>User Details</h3>
+                <p className='text-gray-400 text-xs sm:text-sm'>{viewingUser.full_name || viewingUser.email}</p>
+              </div>
+              <button onClick={closeUserDetails} className='text-gray-400 hover:text-white text-xl p-1'>✕</button>
+            </div>
+            {loadingDetails ? (
+              <p className='text-gray-400 text-sm text-center py-4'>Loading...</p>
+            ) : userDetails ? (
+              <div className='space-y-6'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Full Name</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.full_name || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Email</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.email || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Phone</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.phone_number || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Gender</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.sex || '—'}</p>
+                  </div>
+                  <div className='sm:col-span-2'>
+                    <p className='text-gray-400 text-xs'>Address</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.address || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Country</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.country || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>State of Origin</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.state_of_origin || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>State of Residence</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.state_of_residence || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>LGA</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.lga || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Community</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.community || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Place of Birth</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.place_of_birth || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Highest Qualification</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.highest_qualification || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Institution Attended</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.institution_attended || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Year of Graduation</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.year_of_graduation || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Profession</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.profession || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Current Job Title</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.job_title || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Current Employer</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.current_employee || '—'}</p>
+                  </div>
+                  <div className='sm:col-span-2'>
+                    <p className='text-gray-400 text-xs'>About User</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.about_user || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Role</p>
+                    <p className='text-white text-sm font-medium capitalize'>{userDetails.role || '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Email Verified</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.email_verified ? 'Yes' : 'No'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>Registration Date</p>
+                    <p className='text-white text-sm font-medium'>{userDetails.date_joined ? new Date(userDetails.date_joined).toLocaleString() : '—'}</p>
+                  </div>
+                  <div>
+                    <p className='text-gray-400 text-xs'>KYC Status</p>
+                    <p className='text-white text-sm font-medium capitalize'>{userDetails.kyc_status || '—'}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className='text-gray-400 text-xs mb-2'>Signature</p>
+                  {userDetails.signature_url ? (
+                    <div className='flex flex-col sm:flex-row items-start gap-3'>
+                      <img src={userDetails.signature_url} alt='Signature' className='max-h-32 sm:max-h-40 rounded border border-gray-700 bg-white object-contain' />
+                      <a href={userDetails.signature_url} target='_blank' rel='noopener' className='text-blue-400 hover:text-blue-300 text-xs font-bold'>Open full size</a>
+                    </div>
+                  ) : (
+                    <p className='text-gray-500 text-xs'>No signature uploaded.</p>
+                  )}
+                </div>
+
+                {userDetails.kyc_documents && userDetails.kyc_documents.length > 0 && (
+                  <div>
+                    <p className='text-gray-400 text-xs mb-2'>KYC Documents</p>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                      {userDetails.kyc_documents.map((doc) => (
+                        <div key={doc.id} className='bg-black p-3 rounded-xl border border-gray-700'>
+                          <p className='text-white text-xs font-medium capitalize mb-1'>{doc.document_type}</p>
+                          {doc.document_file_url ? (
+                            <a href={doc.document_file_url} target='_blank' rel='noopener' className='text-blue-400 hover:text-blue-300 text-xs'>View Document</a>
+                          ) : (
+                            <span className='text-gray-500 text-xs'>No file</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {userDetails.donations && userDetails.donations.length > 0 && (
+                  <div>
+                    <p className='text-gray-400 text-xs mb-2'>Donations</p>
+                    <div className='space-y-2'>
+                      {userDetails.donations.map((donation) => (
+                        <div key={donation.id} className='bg-black p-3 rounded-xl border border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+                          <div>
+                            <p className='text-white text-xs font-medium'>${donation.amount} — {donation.payment_method}</p>
+                            <p className='text-gray-400 text-[10px]'>{new Date(donation.created_at).toLocaleString()}</p>
+                          </div>
+                          {donation.proof_of_donation_url ? (
+                            <a href={donation.proof_of_donation_url} target='_blank' rel='noopener' className='text-blue-400 hover:text-blue-300 text-xs font-bold'>View Proof</a>
+                          ) : (
+                            <span className='text-gray-500 text-xs'>No proof</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {userDetails.deposits && userDetails.deposits.length > 0 && (
+                  <div>
+                    <p className='text-gray-400 text-xs mb-2'>Deposits</p>
+                    <div className='space-y-2'>
+                      {userDetails.deposits.map((deposit) => (
+                        <div key={deposit.id} className='bg-black p-3 rounded-xl border border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+                          <div>
+                            <p className='text-white text-xs font-medium'>${deposit.amount} — {deposit.payment_method}</p>
+                            <p className='text-gray-400 text-[10px]'>{new Date(deposit.created_at).toLocaleString()}</p>
+                          </div>
+                          {deposit.proof_of_payment_url ? (
+                            <a href={deposit.proof_of_payment_url} target='_blank' rel='noopener' className='text-blue-400 hover:text-blue-300 text-xs font-bold'>View Proof</a>
+                          ) : (
+                            <span className='text-gray-500 text-xs'>No proof</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className='text-gray-400 text-sm text-center py-4'>No details available.</p>
             )}
           </div>
         </div>

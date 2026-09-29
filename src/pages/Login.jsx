@@ -14,7 +14,6 @@ const Login = ({ showNotification }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loginType, setLoginType] = useState('user');
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMessage, setResetMessage] = useState('');
@@ -66,20 +65,10 @@ const Login = ({ showNotification }) => {
       const { access, refresh, user } = response.data;
       const isAdminUser = user.role === 'admin' || user.role === 'super_admin' || user.is_staff;
 
-      if (loginType === 'admin' && !isAdminUser) {
-        setError('You do not have admin privileges. Please login as a user.');
-        showNotification?.('You do not have admin privileges. Please login as a user.', 'error');
-        return;
-      }
-
       login(user, access, refresh);
-      showNotification?.(loginType === 'admin' ? 'Admin login successful.' : 'Login successful. Welcome back!', 'success');
+      showNotification?.(isAdminUser ? 'Admin login successful.' : 'Login successful. Welcome back!', 'success');
 
-      if (loginType === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+      navigate(isAdminUser ? '/admin' : '/');
     }     catch (err) {
       console.error('Login error:', err);
       if (err.response) {
@@ -172,33 +161,6 @@ const Login = ({ showNotification }) => {
                 )}
               </div>
             )}
-            <div className="mb-6">
-              <label className="block text-sm text-gray-400 mb-2 font-medium">Login As</label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setLoginType('user')}
-                  className={`w-full py-3.5 rounded-2xl font-bold transition-colors border ${
-                    loginType === 'user'
-                      ? 'bg-yellow-400 text-gray-900 border-yellow-400'
-                      : 'bg-transparent text-gray-300 border-gray-700 hover:border-gray-500'
-                  }`}
-                >
-                  User
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLoginType('admin')}
-                  className={`w-full py-3.5 rounded-2xl font-bold transition-colors border ${
-                    loginType === 'admin'
-                      ? 'bg-yellow-400 text-gray-900 border-yellow-400'
-                      : 'bg-transparent text-gray-300 border-gray-700 hover:border-gray-500'
-                  }`}
-                >
-                  Admin
-                </button>
-              </div>
-            </div>
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
                 <label htmlFor="login-identifier" className="block text-sm text-gray-400 mb-2 font-medium">Email, Username, or Phone Number</label>

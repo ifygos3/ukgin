@@ -15,7 +15,7 @@ const Signup = ({ showNotification }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     full_name: '', email: '', address: '', phone_number: '',
-    country: '', state_of_origin: '', lga: '', community: '',
+    country: '', state_of_origin: '', state_of_residence: '', lga: '', community: '',
     place_of_birth: '', sex: '', highest_qualification: '',
     institution_attended: '', year_of_graduation: '', profession: '',
     current_job: '', job_title: '', job_experience: '',
@@ -39,7 +39,7 @@ const Signup = ({ showNotification }) => {
     const country = e.target.value;
     const id = country === 'Nigeria' ? 1 : country === 'Ghana' ? 2 : 0;
     setCountryId(id);
-    setFormData(prev => ({ ...prev, country, state_of_origin: '' }));
+    setFormData(prev => ({ ...prev, country, state_of_origin: '', state_of_residence: '' }));
   };
 
   const handleSignature = useCallback((dataUrl) => {
@@ -84,7 +84,7 @@ const Signup = ({ showNotification }) => {
 
       setFormData({
         full_name: '', email: '', address: '', phone_number: '',
-        country: '', state_of_origin: '', lga: '', community: '',
+        country: '', state_of_origin: '', state_of_residence: '', lga: '', community: '',
         place_of_birth: '', sex: '', highest_qualification: '',
         institution_attended: '', year_of_graduation: '', profession: '',
         current_job: '', job_title: '', job_experience: '',
@@ -361,7 +361,7 @@ const Signup = ({ showNotification }) => {
   {errors.country && <span className="text-red-400 text-sm mt-1 block">{errors.country}</span>}
 </div>
 
-            {countryId > 0 && (
+            {formData.country && (
               <div>
                 <label htmlFor="state_of_origin" className={labelBase}>State of Origin *</label>
                 <select id="state_of_origin" name='state_of_origin' value={formData.state_of_origin} onChange={handleChange} className={inputBase} required>
@@ -374,11 +374,16 @@ const Signup = ({ showNotification }) => {
               </div>
             )}
 
-            {countryId === 0 && formData.country && (
+            {formData.country === 'Nigeria' && (
               <div>
-                <label htmlFor="state_of_origin_other" className={labelBase}>State of Origin *</label>
-                <input id="state_of_origin_other" type='text' name='state_of_origin' value={formData.state_of_origin} onChange={handleChange} className={inputBase} required />
-                {errors.state_of_origin && <span className="text-red-400 text-sm mt-1 block">{errors.state_of_origin}</span>}
+                <label htmlFor="state_of_residence" className={labelBase}>State of Residence *</label>
+                <select id="state_of_residence" name='state_of_residence' value={formData.state_of_residence} onChange={handleChange} className={inputBase} required>
+                  <option value=''>Select State of Residence</option>
+                  {NIGERIAN_STATES.map(state => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
+                {errors.state_of_residence && <span className="text-red-400 text-sm mt-1 block">{errors.state_of_residence}</span>}
               </div>
             )}
 
@@ -414,7 +419,7 @@ const Signup = ({ showNotification }) => {
             </div>
           </fieldset>
 
-          <fieldset className='space-y-4'>
+          {/* <fieldset className='space-y-4'>
             <legend className='text-lg sm:text-xl font-bold text-yellow-400 mb-3'>SECTION 2: EDUCATIONAL BACKGROUND</legend>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
@@ -433,21 +438,21 @@ const Signup = ({ showNotification }) => {
               <input id="year_of_graduation" type='text' name='year_of_graduation' value={formData.year_of_graduation} onChange={handleChange} className={inputBase} required />
               {errors.year_of_graduation && <span className="text-red-400 text-sm mt-1 block">{errors.year_of_graduation}</span>}
             </div>
-          </fieldset>
+          </fieldset> */}
 
           <fieldset className='space-y-4'>
-            <legend className='text-lg sm:text-xl font-bold text-yellow-400 mb-3'>SECTION 3: PROFESSION BACKGROUND</legend>
+            <legend className='text-lg sm:text-xl font-bold text-yellow-400 mb-3'>SECTION 2: PROFESSIONAL BACKGROUND</legend>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
                 <label htmlFor="profession" className={labelBase}>Profession *</label>
                 <input id="profession" type='text' name='profession' value={formData.profession} onChange={handleChange} className={inputBase} required />
                 {errors.profession && <span className="text-red-400 text-sm mt-1 block">{errors.profession}</span>}
               </div>
-              <div>
+              {/* <div>
                 <label htmlFor="job_title" className={labelBase}>Current Job Title *</label>
                 <input id="job_title" type='text' name='job_title' value={formData.job_title} onChange={handleChange} className={inputBase} required />
                 {errors.job_title && <span className="text-red-400 text-sm mt-1 block">{errors.job_title}</span>}
-              </div>
+              </div> */}
             </div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>

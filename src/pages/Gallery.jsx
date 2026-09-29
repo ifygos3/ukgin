@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Skeleton, CardSkeleton, EmptyState } from '../components/ui';
+import { CardSkeleton, EmptyState } from '../components/ui';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
@@ -13,12 +13,31 @@ const resolveMediaUrl = (value) => {
   return trimmed;
 };
 
+const getYoutubeId = (url) => {
+  if (!url) return null;
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+};
+
 const GalleryMedia = ({ item, onOpen }) => {
   const [failed, setFailed] = useState(false);
   const rawUrl = item?.media_url || item?.image_url || item?.image || item?.url || item?.secure_url || item?.src;
   const mediaUrl = resolveMediaUrl(rawUrl);
-  const mediaType = item?.media_type === 'video' || /\.(mp4|mov|webm|ogg|ogv|avi|mkv)$/i.test(mediaUrl) ? 'video' : 'image';
-  const videoType = mediaType === 'video' ? (mediaUrl.endsWith('.webm') ? 'video/webm' : mediaUrl.endsWith('.ogg') || mediaUrl.endsWith('.ogv') ? 'video/ogg' : 'video/mp4') : null;
+  const youtubeId = getYoutubeId(mediaUrl);
+  const mediaType = youtubeId ? 'video' : (item?.media_type === 'video' || /\.(mp4|mov|webm|ogg|ogv|avi|mkv)$/i.test(mediaUrl) ? 'video' : 'image');
+  const videoType = mediaType === 'video' && !youtubeId ? (mediaUrl.endsWith('.webm') ? 'video/webm' : mediaUrl.endsWith('.ogg') || mediaUrl.endsWith('.ogv') ? 'video/ogg' : 'video/mp4') : null;
+
+  if (youtubeId) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${youtubeId}`}
+        title={item?.title || 'Gallery video'}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="w-full h-72 bg-black"
+      />
+    );
+  }
 
   if (!mediaUrl || failed) {
     return <div className="w-full h-72 bg-gray-800 flex items-center justify-center text-4xl">🖼️</div>;
@@ -116,6 +135,10 @@ const Gallery = () => {
               {(() => {
                 const rawUrl = selectedItem?.media_url || selectedItem?.image_url || selectedItem?.image || selectedItem?.url || selectedItem?.secure_url || selectedItem?.src;
                 const mediaUrl = resolveMediaUrl(rawUrl);
+                const youtubeId = getYoutubeId(mediaUrl);
+                if (youtubeId) {
+                  return <iframe src={`https://www.youtube.com/embed/${youtubeId}`} title={selectedItem?.title || 'Gallery video'} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="max-h-[85vh] w-full rounded-2xl" />;
+                }
                 const mediaType = selectedItem?.media_type === 'video' || /\.(mp4|mov|webm|ogg|ogv|avi|mkv)$/i.test(mediaUrl) ? 'video' : 'image';
                 const videoType = mediaType === 'video' ? (mediaUrl.endsWith('.webm') ? 'video/webm' : mediaUrl.endsWith('.ogg') || mediaUrl.endsWith('.ogv') ? 'video/ogg' : 'video/mp4') : null;
                 if (mediaType === 'video') {

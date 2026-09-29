@@ -160,7 +160,7 @@ const AdminEvents = () => {
         </div>
       )}
 
-      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+      <div className="w-full -mx-3 sm:mx-0 overflow-x-auto overscroll-x-contain overscroll-y-contain" style={{WebkitOverflowScrolling: 'touch'}}>
         <div className="min-w-[720px] w-full">
           <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
             <colgroup>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useNotification } from '../../contexts/NotificationContext';
 
@@ -10,6 +10,8 @@ const ConstitutionManagement = () => {
   const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState({ title: '', version: '', content: '', file: null, is_current: false, effective_date: '' });
   const [saving, setSaving] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const fileInputRef = useRef(null);
   const token = localStorage.getItem('access_token');
   const { showNotification } = useNotification();
 
@@ -25,9 +27,15 @@ const ConstitutionManagement = () => {
 
   useEffect(() => { fetchConstitutions(); }, [fetchConstitutions]);
 
+  const resetFileInput = () => {
+    setFileName('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const openCreate = () => {
     setEditing(null);
     setFormData({ title: '', version: '', content: '', file: null, is_current: false, effective_date: '' });
+    resetFileInput();
   };
 
   const openEdit = (c) => {
@@ -40,21 +48,27 @@ const ConstitutionManagement = () => {
       is_current: c.is_current || false,
       effective_date: c.effective_date ? c.effective_date.slice(0, 10) : '',
     });
+    resetFileInput();
   };
 
-  const closeForm = () => { setEditing(null); setFormData({ title: '', version: '', content: '', file: null, is_current: false, effective_date: '' }); };
+  const closeForm = () => { setEditing(null); setFormData({ title: '', version: '', content: '', file: null, is_current: false, effective_date: '' }); resetFileInput(); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const selectedFile = fileInputRef.current?.files?.[0] || formData.file || null;
+    if (!selectedFile) {
+      showNotification('Please choose a PDF file to upload first.', 'error');
+      return;
+    }
     setSaving(true);
     try {
       const data = new FormData();
       data.append('title', formData.title);
       data.append('version', formData.version);
       data.append('content', formData.content);
-      data.append('is_current', formData.is_current);
+      data.append('is_current', editing ? (formData.is_current ? 'true' : 'false') : 'true');
       if (formData.effective_date) data.append('effective_date', formData.effective_date);
-      if (formData.file) data.append('file', formData.file);
+      data.append('file', selectedFile);
       if (editing) {
         await axios.patch(`${API_BASE_URL}/users/constitutions/${editing.id}/`, data, {
           headers: { Authorization: `Bearer ${token}` },
@@ -69,7 +83,10 @@ const ConstitutionManagement = () => {
       closeForm();
     } catch (err) {
       console.error(err);
-      showNotification('Failed to save constitution.', 'error');
+      const detail = err?.response?.data
+        ? Object.values(err.response.data).flat().join(' ')
+        : (err?.message || 'Failed to save constitution.');
+      showNotification(detail, 'error');
     } finally { setSaving(false); }
   };
 
@@ -86,7 +103,7 @@ const ConstitutionManagement = () => {
     const rawFileUrl = c.file_url || (typeof c.file === 'string' ? c.file : c.file?.url);
     const fileUrl = rawFileUrl && (rawFileUrl.startsWith('http://') || rawFileUrl.startsWith('https://')) ? rawFileUrl : (rawFileUrl ? `${API_BASE_URL}${rawFileUrl}` : null);
     if (fileUrl) {
-      window.open(fileUrl, '_blank');
+      window.open(`${fileUrl}${fileUrl.includes('?') ? '&' : '?'}download=1`, '_blank');
     } else {
       showNotification('No file attached to this constitution.', 'error');
     }
@@ -124,8 +141,19 @@ const ConstitutionManagement = () => {
             <textarea name="content" value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})} rows="8" required className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white font-mono focus:border-yellow-400 focus:outline-none transition-colors" />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1 font-medium">File {editing ? '(leave empty to keep current)' : '(optional)'}</label>
-            <input type="file" onChange={(e) => setFormData({...formData, file: e.target.files[0]})} className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white focus:border-yellow-400 focus:outline-none transition-colors" />
+            <label className="block text-sm text-gray-400 mb-1 font-medium">File {editing ? '(leave empty to keep current)' : '*'}</label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setFormData({ ...formData, file });
+                setFileName(file ? file.name : '');
+              }}
+              className="w-full bg-black p-3 rounded-xl border border-gray-700 text-white focus:border-yellow-400 focus:outline-none transition-colors"
+            />
+            {fileName && <p className="mt-2 text-sm text-green-300">Selected: {fileName}</p>}
             {editing && editing.file && (
               <button type="button" onClick={() => handleDownload(editing)} className="mt-2 text-yellow-400 text-sm hover:text-yellow-300 underline">Download current file</button>
             )}
@@ -151,8 +179,10 @@ const ConstitutionManagement = () => {
                 </div>
               </div>
               <div className="flex gap-2 shrink-0">
-                {c.file && (
+                {c.file ? (
                   <button onClick={() => handleDownload(c)} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-500 transition-colors">Download</button>
+                ) : (
+                  <span className="px-2 py-1.5 rounded-lg text-xs font-bold bg-yellow-500/15 text-yellow-300 border border-yellow-500/25">No file</span>
                 )}
                 <button onClick={() => openEdit(c)} className="bg-yellow-500 text-black px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-yellow-400 transition-colors">Edit</button>
                 <button onClick={() => handleDelete(c.id)} className="bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-500 transition-colors">Delete</button>

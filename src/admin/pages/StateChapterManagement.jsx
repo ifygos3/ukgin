@@ -151,7 +151,7 @@ const StateChapterManagement = () => {
         </form>
       </div>
 
-      <div className="w-full overflow-x-auto overscroll-x-contain border border-gray-800 rounded-xl" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+      <div className="w-full -mx-3 sm:mx-0 overflow-x-auto overscroll-x-contain overscroll-y-contain border border-gray-800 rounded-xl" style={{WebkitOverflowScrolling: 'touch'}}>
         <div className="min-w-[720px] w-full">
           <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
             <thead>

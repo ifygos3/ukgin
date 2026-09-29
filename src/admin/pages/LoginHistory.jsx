@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useNotification } from '../../contexts/NotificationContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
@@ -9,7 +8,6 @@ const LoginHistory = () => {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const token = localStorage.getItem('access_token');
-  const { showNotification } = useNotification();
 
   const fetchLogins = useCallback(async () => {
     try {
@@ -26,7 +24,12 @@ const LoginHistory = () => {
     }
   }, [token]);
 
-  useEffect(() => { fetchLogins(); }, [fetchLogins]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchLogins();
+    const interval = setInterval(fetchLogins, 30000);
+    return () => clearInterval(interval);
+  }, [fetchLogins]);
 
   if (loading) {
     return <div className="min-h-screen pt-4 px-6 text-white"><p className="text-gray-400">Loading...</p></div>;
@@ -39,7 +42,7 @@ const LoginHistory = () => {
         <span className="text-gray-400">{totalCount} total logins</span>
       </div>
 
-      <div className="w-full overflow-x-auto overscroll-x-contain" style={{WebkitOverflowScrolling: 'touch', touchAction: 'pan-x'}}>
+      <div className="w-full -mx-3 sm:mx-0 overflow-x-auto overscroll-x-contain overscroll-y-contain" style={{WebkitOverflowScrolling: 'touch'}}>
         <div className="min-w-[720px] w-full">
           <table className="w-full text-xs sm:text-sm border-collapse" style={{tableLayout: 'fixed'}}>
             <thead>

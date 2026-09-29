@@ -33,9 +33,10 @@ const Constitution = () => {
   const handleDownload = async () => {
     const rawFileUrl = constitution?.file_url || constitution?.file;
     const fileUrl = rawFileUrl && (rawFileUrl.startsWith('http://') || rawFileUrl.startsWith('https://')) ? rawFileUrl : (rawFileUrl ? `${API_BASE_URL}${rawFileUrl}` : null);
-    if (fileUrl) {
+    const downloadUrl = fileUrl ? `${fileUrl}${fileUrl.includes('?') ? '&' : '?'}download=1` : null;
+    if (downloadUrl) {
       try {
-        const response = await axios.get(fileUrl, { responseType: 'blob' });
+        const response = await axios.get(downloadUrl, { responseType: 'blob' });
         const blob = new Blob([response.data], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -46,7 +47,7 @@ const Constitution = () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       } catch {
-        window.open(fileUrl, '_blank');
+        window.open(downloadUrl, '_blank');
       }
     } else {
       const content = constitution?.content || 'UKGIN Constitution content not available.';
