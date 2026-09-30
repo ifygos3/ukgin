@@ -125,6 +125,20 @@ const AdminLayout = () => {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-2 overscroll-contain min-h-0">
+          {!sidebarCollapsed && (
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-2.5 px-3 sm:px-4 py-2.5 sm:py-3 mb-2 text-sm sm:text-base font-extrabold text-gray-900 bg-yellow-400 hover:bg-yellow-500 rounded-xl transition-colors lg:hidden"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4a2 2 0 00-2-2h-2m2-2h2a2 2 0 012 2v1m-6 0h6" />
+              </svg>
+              <span className="truncate">View Public Site</span>
+            </a>
+          )}
           {menuItems.map((item) => (
             <Link
               key={item.path}
@@ -220,13 +234,14 @@ const AdminLayout = () => {
               />
             </div>
 
-            {/* View Site - hidden on small screens */}
+            {/* View Site - icon only on phones so it always fits the mobile header */}
             <a
               href="/"
               target="_blank"
               rel="noopener"
-              className="hidden sm:flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-colors"
-              aria-label="View site"
+              className="flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-2 sm:px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold transition-colors shrink-0"
+              title="View the public site in a new tab"
+              aria-label="View the public site in a new tab"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4a2 2 0 00-2-2h-2m2-2h2a2 2 0 012 2v1m-6 0h6" />
